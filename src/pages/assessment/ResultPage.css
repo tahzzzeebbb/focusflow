@@ -1,0 +1,75 @@
+.result-hero {
+  padding: 60px 24px 32px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  text-align: center;
+}
+.result-hero__top {
+  width: 100%; display: flex; justify-content: space-between;
+  font-size: 11px; color: rgba(255,255,255,.6); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .5px;
+}
+.result-hero__level {
+  font-size: 24px; font-weight: 900; color: #fff; letter-spacing: -.3px;
+}
+.result-hero__action {
+  font-size: 14px; color: rgba(255,255,255,.8); margin-top: -6px;
+}
+.result-hero__type {
+  display: flex; gap: 10px; align-items: center; margin-top: 4px;
+}
+.result-hero__type-code {
+  background: rgba(255,255,255,.2); color: #fff;
+  padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 700;
+}
+.result-hero__type-name {
+  font-size: 13px; color: rgba(255,255,255,.8); font-weight: 600;
+}
+
+.result-card {
+  background: var(--surf); border-radius: 20px; padding: 20px;
+  border: 1px solid var(--border); margin-bottom: 14px;
+}
+.result-card__title {
+  font-size: 17px; font-weight: 800; color: var(--ink); margin-bottom: 4px;
+}
+.result-card__sub {
+  font-size: 12px; color: var(--ink3); margin-bottom: 16px;
+}
+
+/* Breakdown rows */
+.breakdown-row { margin-bottom: 14px; }
+.breakdown-row__meta { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.breakdown-row__label { font-size: 13px; font-weight: 700; color: var(--ink); }
+.breakdown-row__raw { font-size: 11px; color: var(--ink3); }
+.breakdown-row__bar { height: 8px; background: var(--surf3); border-radius: 999px; overflow: hidden; margin-bottom: 4px; }
+.breakdown-row__fill { height: 100%; border-radius: 999px; transition: width 1.2s var(--ease); }
+.breakdown-row__score { font-size: 13px; font-weight: 800; }
+
+/* ADHD Type */
+.result-type-box {
+  display: flex; gap: 14px; align-items: center;
+  background: var(--p50); border-radius: 14px; padding: 14px;
+}
+.result-type-icon {
+  width: 48px; height: 48px; border-radius: 12px; background: var(--p100);
+  display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
+}
+
+/* Comparison table */
+.cmp-table { position: relative; }
+.cmp-header {
+  display: grid; grid-template-columns: 1fr 60px 80px 80px;
+  gap: 8px; padding: 8px 0 0;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; color: var(--ink4); border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+.cmp-row {
+  display: grid; grid-template-columns: 1fr 60px 80px 80px;
+  gap: 8px; padding: 10px 0;
+  border-bottom: 1px solid var(--border); align-items: center;
+}
+.cmp-row__label { font-size: 13px; font-weight: 600; color: var(--ink2); }
+.cmp-row__you   { font-size: 14px; font-weight: 800; color: var(--p500); }
+.cmp-row__adhd  { font-size: 12px; color: var(--r500); }
+.cmp-row__non   { font-size: 12px; color: var(--g500); }

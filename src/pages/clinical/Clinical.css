@@ -1,0 +1,183 @@
+/* ── CLINICAL HEADER ── */
+.clin-header {
+  display: flex; align-items: center; gap: 12px; padding: 52px 20px 14px;
+}
+.clin-back {
+  width: 42px; height: 42px; border-radius: 50%; background: var(--surf2);
+  border: none; font-size: 20px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; flex-shrink: 0;
+}
+.clin-title    { font-size: 16px; font-weight: 800; color: var(--ink); }
+.clin-subtitle { font-size: 12px; color: var(--ink3); margin-top: 2px; }
+.clin-dot {
+  width: 10px; height: 10px; border-radius: 50%; margin-left: auto; flex-shrink: 0;
+}
+.clin-dot.green { background: var(--g500); box-shadow: 0 0 0 3px rgba(0,179,125,.2); }
+.clin-dot.red   { background: var(--r500); box-shadow: 0 0 0 3px rgba(255,92,92,.2); }
+
+/* ── REAL DATA BANNER ── */
+.real-data-banner {
+  display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+  background: linear-gradient(135deg, var(--p50), var(--g50));
+  border-bottom: 1px solid var(--border); font-size: 13px; color: var(--ink2);
+  flex-shrink: 0; line-height: 1.4;
+}
+
+/* ── STATS ROW ── */
+.clin-stats-row {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 10px;
+  padding: 16px 20px;
+}
+.clin-stat {
+  background: var(--surf); border: 1px solid var(--border); border-radius: 14px;
+  padding: 12px 8px; text-align: center;
+}
+
+/* ── LEGEND ── */
+.clin-legend {
+  display: flex; gap: 14px; padding: 0 20px 16px; flex-wrap: wrap;
+}
+.clin-legend span {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--ink3);
+}
+.clin-legend i {
+  display: inline-block; width: 10px; height: 10px;
+  border-radius: 50%; flex-shrink: 0;
+}
+
+/* ── GRAPH WRAPPER ── */
+.clin-graph-wrap { margin: 0 20px; }
+.clin-graph-tip {
+  text-align: center; font-size: 11px; color: var(--ink3);
+  margin-top: 8px; padding-bottom: 4px;
+}
+
+/* ── LOADING ── */
+.clin-loading {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 14px; padding: 80px 20px; text-align: center;
+  color: var(--ink3); font-size: 14px;
+}
+.clin-loading-sub { font-size: 12px; color: var(--ink4); }
+.clin-spinner {
+  width: 40px; height: 40px; border: 3px solid var(--border);
+  border-top-color: var(--p500); border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── ERROR BOX ── */
+.clin-error-box {
+  margin: 20px; background: var(--r50); border: 1px solid var(--r300);
+  border-radius: 18px; padding: 28px 20px; text-align: center;
+}
+.clin-error-box h3 { font-size: 18px; color: var(--r500); margin-bottom: 8px; }
+.clin-error-box p  { font-size: 13px; color: var(--ink2); line-height: 1.5; }
+.clin-retry-btn {
+  margin-top: 16px; padding: 11px 24px; background: var(--r500); color: #fff;
+  border: none; border-radius: 99px; font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.clin-error-inline {
+  background: var(--r50); color: var(--r500); font-size: 13px; font-weight: 600;
+  padding: 12px 16px; border-radius: 12px;
+}
+
+/* ── INFO CARD ── */
+.clin-info-card {
+  margin: 16px 20px; background: var(--surf);
+  border: 1px solid var(--border); border-radius: 18px; padding: 20px;
+}
+.clin-info-card h3 { font-size: 15px; font-weight: 800; margin-bottom: 10px; color: var(--ink); }
+.clin-info-card p  { font-size: 13px; color: var(--ink2); line-height: 1.6; margin-bottom: 14px; }
+.clin-info-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  background: var(--surf2); border-radius: 12px; padding: 14px;
+}
+
+/* ── QUERY TYPE BUTTON ── */
+.query-type-btn {
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px;
+  border: 2px solid var(--border); border-radius: 16px; background: var(--surf2);
+  cursor: pointer; transition: all .15s; font-family: var(--font);
+}
+.query-type-btn:hover { border-color: var(--p300); background: var(--p50); }
+.query-type-btn.active { border-color: var(--p500); }
+
+/* ── OPTION CHIP ── */
+.option-chip {
+  padding: 8px 16px; border: 2px solid var(--border); border-radius: 99px;
+  background: var(--surf2); font-size: 13px; font-weight: 600; color: var(--ink2);
+  cursor: pointer; white-space: nowrap; transition: all .15s;
+  font-family: var(--font); flex-shrink: 0;
+}
+.option-chip:hover { border-color: var(--p300); }
+.option-chip.active { background: var(--p500); color: #fff; border-color: var(--p500); }
+
+/* ── QUERY INPUT ── */
+.query-input {
+  width: 100%; padding: 14px 18px; border: 2px solid var(--border);
+  border-radius: 14px; font-size: 15px; font-family: var(--font);
+  background: var(--surf2); color: var(--ink); outline: none; transition: border .2s;
+}
+.query-input:focus { border-color: var(--p500); background: var(--surf); }
+
+/* ── RUN BUTTON ── */
+.clin-run-btn {
+  width: 100%; padding: 17px 24px; border: none; border-radius: 99px;
+  font-size: 15px; font-weight: 700; color: #fff; cursor: pointer;
+  font-family: var(--font); transition: all .15s;
+}
+.clin-run-btn:active { transform: scale(.98); }
+.clin-run-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ── RESULTS BARS ── */
+.results-bars { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.result-bar-row { display: flex; align-items: center; gap: 10px; }
+.result-bar-label { width: 130px; font-size: 12px; color: var(--ink2); font-weight: 600; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.result-bar-track { flex: 1; height: 8px; background: var(--surf2); border-radius: 99px; overflow: hidden; }
+.result-bar-fill  { height: 100%; border-radius: 99px; transition: width .8s cubic-bezier(.16,1,.3,1); }
+.result-bar-val   { width: 36px; font-size: 12px; font-weight: 800; text-align: right; }
+
+/* ── RESULTS TABLE ── */
+.results-table-wrap {
+  border: 1px solid var(--border); border-radius: 14px; overflow: auto; margin-top: 12px;
+}
+.results-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.results-table th {
+  text-align: left; padding: 10px 14px; background: var(--surf2);
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+  color: var(--ink3); white-space: nowrap; border-bottom: 1px solid var(--border);
+}
+.results-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--ink2); }
+.results-table tr:last-child td { border-bottom: none; }
+
+/* ── ATTRIBUTION ── */
+.clin-attribution {
+  display: flex; gap: 8px; align-items: flex-start; margin-top: 12px;
+  font-size: 11px; color: var(--ink3); background: var(--surf2);
+  padding: 10px 14px; border-radius: 10px; line-height: 1.4;
+}
+
+/* ── LAB TEST CARD ── */
+.lab-test-card {
+  background: var(--surf); border: 1px solid var(--border); border-radius: 16px;
+  padding: 18px; margin-bottom: 12px;
+}
+
+/* ── PROFILE CARD ── */
+.clin-profile-card {
+  background: linear-gradient(135deg, var(--p50), var(--surf));
+  border: 1px solid var(--p100); border-radius: 18px; padding: 18px;
+}
+
+/* ── BOTTOM TABS ── */
+.clin-bottom-tabs { display: flex; justify-content: space-around; }
+.clin-tab {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 14px; border: none; background: none; color: var(--ink3);
+  font-size: 10px; font-weight: 700; cursor: pointer; border-radius: 12px;
+  transition: all .15s;
+}
+.clin-tab span:first-child { font-size: 20px; }
+.clin-tab.active { color: var(--p500); background: var(--p50); }

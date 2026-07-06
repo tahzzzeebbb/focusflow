@@ -1,0 +1,98 @@
+.lab-recommendations {
+  background: #fff;
+  border: 1px solid var(--paper-300);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.lab-recommendations h3 {
+  font-size: var(--text-lg);
+  color: var(--text-on-paper-primary);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--paper-300);
+}
+
+.info-box {
+  background: var(--paper-100);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  color: var(--text-on-paper-secondary);
+}
+
+.info-box ul {
+  text-align: left;
+  margin-top: var(--space-3);
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.analysis-summary,
+.condition-box,
+.recommendations-box,
+.lab-tests-box,
+.next-steps-box {
+  background: var(--paper-100);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.analysis-summary h4,
+.condition-box h4,
+.recommendations-box h4,
+.lab-tests-box h4,
+.next-steps-box h4 {
+  font-family: var(--font-mono);
+  color: var(--signal-600);
+  margin-bottom: var(--space-3);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.analysis-summary p,
+.condition-box p {
+  color: var(--text-on-paper-primary);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+.recommendations-box ul,
+.lab-tests-box ul,
+.next-steps-box ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.recommendations-box li,
+.lab-tests-box li,
+.next-steps-box li {
+  padding: var(--space-2) 0;
+  color: var(--text-on-paper-primary);
+  font-size: var(--text-sm);
+  border-bottom: 1px solid var(--paper-300);
+}
+
+.recommendations-box li:last-child,
+.lab-tests-box li:last-child,
+.next-steps-box li:last-child {
+  border-bottom: none;
+}
+
+.disclaimer {
+  padding: var(--space-4);
+  background: var(--caution-100);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  color: #7A5B23;
+  text-align: center;
+  line-height: 1.5;
+}

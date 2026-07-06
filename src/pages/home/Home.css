@@ -1,0 +1,92 @@
+/* ── HOME STATUS ── */
+.home-status {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 52px 20px 16px;
+}
+.home-notif {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--surf2); border: none; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative; flex-shrink: 0;
+}
+.home-notif__dot {
+  position: absolute; top: 6px; right: 6px; width: 10px; height: 10px;
+  background: var(--r500); border-radius: 50%; border: 2px solid var(--surf);
+}
+
+/* ── HERO CARD ── */
+.home-hero {
+  margin: 0 20px 20px; border-radius: 22px; padding: 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; gap: 12px; transition: transform .15s;
+}
+.home-hero:active { transform: scale(.98); }
+.home-hero--empty {
+  background: var(--p50); border: 2px dashed var(--p200);
+}
+
+/* ── STATS ROW ── */
+.home-stats {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 10px; margin: 0 20px 20px;
+}
+.home-stat {
+  background: var(--surf); border: 1px solid var(--border);
+  border-radius: 16px; padding: 14px 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  text-align: center;
+}
+
+/* ── MOOD CARD ── */
+.home-mood-card {
+  display: flex; align-items: center; gap: 14px; padding: 16px 18px;
+  background: linear-gradient(135deg, var(--p50), var(--surf3));
+  border: 1px solid var(--p100); border-radius: 18px; cursor: pointer;
+  transition: transform .15s;
+}
+.home-mood-card:active { transform: scale(.98); }
+
+/* ── QUICK ACTIONS ── */
+.quick-actions {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 10px;
+}
+.quick-action {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 14px 6px; border-radius: 16px; border: none; cursor: pointer;
+  transition: transform .15s; background: var(--surf2);
+}
+.quick-action:active { transform: scale(.95); }
+
+/* ── TASK ITEM ── */
+.home-task {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; background: var(--surf);
+  border: 1px solid var(--border); border-radius: 14px;
+  margin-bottom: 8px; cursor: pointer; transition: all .15s;
+}
+.home-task:hover  { border-color: var(--p200); background: var(--p50); }
+.home-task:active { transform: scale(.99); }
+.home-task__check {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid var(--border); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; transition: all .2s;
+}
+.home-task__check.done { background: var(--g500); border-color: var(--g500); color: #fff; }
+
+/* ── WEEK CHART ── */
+.week-chart-card {
+  background: var(--surf); border: 1px solid var(--border);
+  border-radius: 18px; padding: 20px;
+}
+.week-chart {
+  display: flex; align-items: flex-end; gap: 8px; height: 100px;
+}
+.week-chart__col {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.week-chart__bar {
+  width: 100%; border-radius: 6px 6px 0 0;
+  transition: height .6s var(--ease); min-height: 4px;
+}
+.week-chart__day { font-size: 10px; font-weight: 600; }

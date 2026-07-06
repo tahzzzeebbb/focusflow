@@ -1,0 +1,94 @@
+.welcome {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--slide-light, #F0EEFF) 0%, #fff 55%);
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 20px;
+  transition: background .4s;
+}
+
+.welcome__skip {
+  align-self: flex-end;
+  margin-top: 16px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink3);
+  cursor: pointer;
+  padding: 8px 4px;
+}
+
+.welcome__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px 8px;
+}
+
+.welcome__emoji {
+  font-size: 96px;
+  margin-bottom: 28px;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,.1));
+  animation: fadeUp .4s var(--ease) forwards;
+}
+
+.welcome__title {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: -.8px;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  animation: fadeUp .4s .1s var(--ease) both;
+}
+
+.welcome__body-text {
+  font-size: 16px;
+  color: var(--ink2);
+  line-height: 1.6;
+  max-width: 300px;
+  animation: fadeUp .4s .2s var(--ease) both;
+}
+
+.welcome__dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 40px;
+}
+
+.welcome__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border);
+  cursor: pointer;
+  transition: all .3s;
+}
+
+.welcome__dot.active {
+  width: 28px;
+}
+
+.welcome__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 40px;
+}
+
+.welcome__login {
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink3);
+  cursor: pointer;
+  padding: 8px;
+  text-align: center;
+}

@@ -1,0 +1,119 @@
+.auth-screen {
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ---------- Left brand panel ---------- */
+.auth-panel {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-8);
+  background: var(--ink-900);
+  background-image: radial-gradient(ellipse 70% 60% at 20% 80%, rgba(217, 119, 87, 0.14), transparent 65%);
+  color: var(--text-on-ink-primary);
+  padding: var(--space-16);
+}
+
+.auth-panel__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+}
+
+.auth-panel__quote {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  line-height: 1.4;
+  color: var(--text-on-ink-primary);
+  max-width: 460px;
+  border: none;
+}
+
+.auth-panel__caption {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  color: var(--text-on-ink-muted);
+}
+
+/* ---------- Right form side ---------- */
+.auth-form-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper-100);
+  padding: var(--space-8);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.auth-card h1 {
+  font-size: var(--text-2xl);
+  color: var(--text-on-paper-primary);
+}
+
+.auth-card__subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-on-paper-secondary);
+  margin-top: calc(-1 * var(--space-3));
+}
+
+.auth-error {
+  background: var(--critical-100);
+  color: var(--critical-500);
+  font-size: var(--text-sm);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+}
+
+.auth-card__switch {
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--text-on-paper-secondary);
+}
+
+.auth-card__switch-btn {
+  background: none;
+  border: none;
+  color: var(--signal-500);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  padding: 0;
+}
+
+.auth-card__switch-btn:hover {
+  text-decoration: underline;
+}
+
+.auth-card__demo {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-on-paper-muted);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--paper-300);
+}
+
+.auth-card__demo span {
+  color: var(--text-on-paper-secondary);
+  font-weight: 500;
+}
+
+@media (min-width: 900px) {
+  .auth-panel {
+    display: flex;
+  }
+}

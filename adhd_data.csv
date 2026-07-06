@@ -1,0 +1,16 @@
+age,gender,inattentionScore,hyperactivityScore,impulsivityScore,adhd
+8,Male,8,7,6,1
+10,Female,7,5,4,1
+15,Male,6,8,7,1
+25,Female,4,3,2,0
+30,Male,5,4,3,0
+12,Female,9,6,8,1
+35,Male,3,2,2,0
+7,Male,8,9,7,1
+9,Female,6,4,5,1
+20,Male,4,3,3,0
+28,Female,5,2,3,0
+14,Male,7,8,6,1
+18,Female,3,2,2,0
+22,Male,6,5,4,1
+32,Female,2,1,1,0

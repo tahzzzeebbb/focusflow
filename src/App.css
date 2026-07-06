@@ -1,0 +1,108 @@
+/* ── ROOT ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  height: 100%;
+  background: #1A1035;
+}
+
+body {
+  min-height: 100%;
+  font-family: var(--font);
+  background: #EAE7FF;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background: #EAE7FF;
+}
+
+/* ── PHONE SHELL (centered on desktop, full on mobile) ── */
+.phone-shell {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  background: var(--surf);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 0 80px rgba(108,92,231,.2);
+}
+
+/* ── SCREEN = full height flex column ── */
+.screen {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  background: var(--surf);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;  /* IMPORTANT: prevent double scrollbars */
+}
+
+/* ── SCROLLABLE AREA ── */
+.screen__scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  /* thin scrollbar on desktop */
+  scrollbar-width: thin;
+  scrollbar-color: #DDD8FF transparent;
+}
+.screen__scroll::-webkit-scrollbar { width: 4px; }
+.screen__scroll::-webkit-scrollbar-track { background: transparent; }
+.screen__scroll::-webkit-scrollbar-thumb { background: #DDD8FF; border-radius: 4px; }
+
+/* ── STICKY HEADER ── */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255,255,255,.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* ── STICKY FOOTER ── */
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  background: rgba(255,255,255,.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  padding: 14px 20px 34px;
+  flex-shrink: 0;
+}
+
+/* ── SECTION ── */
+.section { padding: 0 20px; margin-bottom: 24px; }
+.section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.section-title { font-size:18px; font-weight:800; color:var(--ink); }
+.section-action { background:none; border:none; font-size:13px; font-weight:700; color:var(--p500); cursor:pointer; }
+
+/* ── SCROLLABLE HORIZONTAL PILLS ── */
+.scroll-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 20px 8px;
+  scrollbar-width: none;
+}
+.scroll-row::-webkit-scrollbar { display: none; }
+
+/* ── UTILS ── */
+.px { padding-left:20px; padding-right:20px; }
+
+/* ── CHART BARS ── */
+.chart-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; }
+.chart-bar { width:100%; border-radius:5px 5px 0 0; min-height:4px; transition:height .6s cubic-bezier(.16,1,.3,1); }

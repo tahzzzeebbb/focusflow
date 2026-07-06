@@ -1,0 +1,35 @@
+.calculating {
+  min-height: 100dvh;
+  background: linear-gradient(160deg, #4535B8 0%, #6C5CE7 50%, #A29BFE 100%);
+  display: flex; align-items: center; justify-content: center;
+  max-width: 430px; margin: 0 auto;
+}
+.calculating__content {
+  text-align: center; padding: 40px 32px;
+  animation: fadeUp .4s var(--ease);
+}
+.calculating__icon { font-size: 72px; display: block; margin-bottom: 28px; line-height: 1; }
+.calculating__title {
+  font-size: 26px; font-weight: 900; color: #fff; letter-spacing: -.4px;
+  margin-bottom: 12px;
+}
+.calculating__step {
+  font-size: 15px; color: rgba(255,255,255,.7); margin-bottom: 40px;
+  min-height: 24px; transition: all .3s;
+}
+.calculating__bar-wrap {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+}
+.calculating__bar {
+  flex: 1; height: 6px; background: rgba(255,255,255,.2); border-radius: 999px; overflow: hidden;
+}
+.calculating__fill {
+  height: 100%; background: #fff; border-radius: 999px; transition: width .3s;
+}
+.calculating__pct {
+  font-size: 18px; font-weight: 900; color: #fff; min-width: 44px;
+}
+.calculating__note {
+  font-size: 12px; color: rgba(255,255,255,.45);
+  text-transform: uppercase; letter-spacing: .6px;
+}
