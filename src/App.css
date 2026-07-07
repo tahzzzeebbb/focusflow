@@ -1,69 +1,65 @@
-/* ── ROOT ── */
+/* ══════════════════════════════════════════════════════════
+   ROOT LAYOUT — fixed-height scroll containers (the correct way)
+   Bug this fixes: flex children need min-height:0 to scroll
+   inside a flex parent — otherwise they grow to fit ALL content
+   and nothing scrolls, no matter how much overflow:auto you add.
+   ══════════════════════════════════════════════════════════ */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
   height: 100%;
+  overflow: hidden;           /* only children scroll, never the page itself */
   background: #1A1035;
 }
 
 body {
-  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
   font-family: var(--font);
   background: #EAE7FF;
   -webkit-font-smoothing: antialiased;
 }
 
 #root {
-  min-height: 100vh;
+  height: 100%;               /* FIXED height, not min-height */
   display: flex;
   justify-content: center;
   background: #EAE7FF;
+  overflow: hidden;
 }
 
-/* ── PHONE SHELL (centered on desktop, full on mobile) ── */
-.phone-shell {
-  width: 100%;
-  max-width: 430px;
-  min-height: 100dvh;
-  background: var(--surf);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  box-shadow: 0 0 80px rgba(108,92,231,.2);
-}
-
-/* ── SCREEN = full height flex column ── */
+/* ── SCREEN = fixed-height flex column (the "phone" on desktop) ── */
 .screen {
   width: 100%;
   max-width: 430px;
-  min-height: 100dvh;
+  height: 100%;                /* FIXED height, not min-height */
   background: var(--surf);
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: hidden;  /* IMPORTANT: prevent double scrollbars */
+  overflow: hidden;             /* clip to this box; only .screen__scroll scrolls */
 }
 
-/* ── SCROLLABLE AREA ── */
+/* ── THE SCROLLABLE AREA — this is what actually scrolls ── */
 .screen__scroll {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;                /* ← THE FIX: without this, flex children refuse to shrink/scroll */
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-  /* thin scrollbar on desktop */
   scrollbar-width: thin;
   scrollbar-color: #DDD8FF transparent;
 }
-.screen__scroll::-webkit-scrollbar { width: 4px; }
+.screen__scroll::-webkit-scrollbar { width: 5px; }
 .screen__scroll::-webkit-scrollbar-track { background: transparent; }
 .screen__scroll::-webkit-scrollbar-thumb { background: #DDD8FF; border-radius: 4px; }
+.screen__scroll::-webkit-scrollbar-thumb:hover { background: #C5BCFF; }
 
-/* ── STICKY HEADER ── */
+/* ── STICKY HEADER / FOOTER (inside the scroll container's flex parent) ── */
 .sticky-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  position: sticky; top: 0; z-index: 50;
   background: rgba(255,255,255,.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -71,11 +67,8 @@ body {
   flex-shrink: 0;
 }
 
-/* ── STICKY FOOTER ── */
 .sticky-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 50;
+  position: sticky; bottom: 0; z-index: 50;
   background: rgba(255,255,255,.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -84,25 +77,29 @@ body {
   flex-shrink: 0;
 }
 
-/* ── SECTION ── */
-.section { padding: 0 20px; margin-bottom: 24px; }
-.section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
-.section-title { font-size:18px; font-weight:800; color:var(--ink); }
-.section-action { background:none; border:none; font-size:13px; font-weight:700; color:var(--p500); cursor:pointer; }
+/* ── SECTION / LAYOUT UTILS ── */
+.section        { padding: 0 20px; margin-bottom: 24px; max-width: 100%; }
+.section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:8px; }
+.section-title  { font-size:18px; font-weight:800; color:var(--ink); }
+.section-action { background:none; border:none; font-size:13px; font-weight:700; color:var(--p500); cursor:pointer; flex-shrink:0; }
 
-/* ── SCROLLABLE HORIZONTAL PILLS ── */
+.px { padding-left:20px; padding-right:20px; max-width: 100%; }
+
+/* ── HORIZONTAL SCROLL ROWS (pills, chips) — contained, no page overflow ── */
 .scroll-row {
   display: flex;
   gap: 10px;
   overflow-x: auto;
+  overflow-y: hidden;
   padding: 2px 20px 8px;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 .scroll-row::-webkit-scrollbar { display: none; }
 
-/* ── UTILS ── */
-.px { padding-left:20px; padding-right:20px; }
-
-/* ── CHART BARS ── */
-.chart-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; }
+/* ── GRIDS: never allow horizontal overflow ── */
+.chart-col { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:5px; }
 .chart-bar { width:100%; border-radius:5px 5px 0 0; min-height:4px; transition:height .6s cubic-bezier(.16,1,.3,1); }
+
+/* Any element that could overflow horizontally gets clamped */
+img, svg, table { max-width: 100%; }

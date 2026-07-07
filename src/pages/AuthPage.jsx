@@ -38,6 +38,7 @@ export default function AuthPage() {
 
   return (
     <div className="screen">
+      <div className="screen__scroll">
       <div className="auth__hero">
         <div className="auth__logo">🧠 FocusFlow</div>
         <h1 className="auth__hero-title">
@@ -94,6 +95,7 @@ export default function AuthPage() {
         <p className="auth__demo">
           Demo: <strong>any email</strong> + <strong>123456</strong>
         </p>
+      </div>
       </div>
     </div>
   );
