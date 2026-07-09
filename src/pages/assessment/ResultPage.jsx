@@ -5,9 +5,15 @@ import { Btn, ScoreRing } from '../../components/ui';
 import {
   getRiskLevel, getADHDType, getBreakdown, DATASET,
   findSimilarPatients, getAcademicImpact, getAgeGroupStats,
-  INN_RISK, HYP_RISK, IMP_RISK, predictedAcademic
+  predictedAcademic
 } from '../../services/adhdEngine';
 import './ResultPage.css';
+
+const CONFIDENCE_COPY = {
+  high:     { label: 'Strong sample',   note: null },
+  moderate: { label: 'Reasonable sample', note: null },
+  low:      { label: 'Small sample',    note: 'Treat this as a rough estimate rather than a precise number.' },
+};
 
 export default function ResultPage() {
   const navigate = useNavigate();
@@ -27,7 +33,6 @@ export default function ResultPage() {
   const hyp = assessment?.hyperactivity ?? 4;
   const imp = assessment?.impulsivity   ?? 4;
 
-  // Animate score counter
   useEffect(() => {
     let n = 0;
     const t = setInterval(() => {
@@ -37,7 +42,6 @@ export default function ResultPage() {
     return () => clearInterval(t);
   }, [s]);
 
-  // Load real CSV data async
   useEffect(() => {
     (async () => {
       try {
@@ -63,6 +67,14 @@ export default function ResultPage() {
   if ((assessment?.sleepHours??7) < 6) modifiers.push({ label:'Low sleep (<6h)', pts:'+2.0', badge:'red' });
   if (assessment?.daydreaming)   modifiers.push({ label:'Daydreaming',    pts:'−1.0', badge:'yellow' });
 
+  const compareRows = [
+    { label:'Inattention',      you: inn, adhd: parseFloat(DATASET.adhd.inn), non: parseFloat(DATASET.nonAdhd.inn), max: 9, suffix:'/9' },
+    { label:'Hyperactivity',    you: hyp, adhd: parseFloat(DATASET.adhd.hyp), non: parseFloat(DATASET.nonAdhd.hyp), max: 9, suffix:'/9' },
+    { label:'Impulsivity',      you: imp, adhd: parseFloat(DATASET.adhd.imp), non: parseFloat(DATASET.nonAdhd.imp), max: 9, suffix:'/9' },
+    { label:'ADHD Risk',        you: s,   adhd: 72.1, non: 57.8, max: 100, suffix:'%' },
+    { label:'Academic (pred.)', you: predictedAcademic(inn,hyp,imp), adhd: parseFloat(DATASET.adhd.academic), non: parseFloat(DATASET.nonAdhd.academic), max: 100, suffix:'' },
+  ];
+
   return (
     <div className="screen">
       <div className="screen__scroll">
@@ -71,9 +83,9 @@ export default function ResultPage() {
         <div className="result-hero" style={{ background: risk.gradient }}>
           <div className="result-hero__top">
             <span>Your ADHD Assessment</span>
-            <span>2,000 patient model</span>
+            <span>2,000-patient model</span>
           </div>
-          <ScoreRing score={animScore} size={160} />
+          <ScoreRing score={animScore} size={168} />
           <h2 className="result-hero__level">{risk.emoji} {risk.label}</h2>
           <p className="result-hero__action">{risk.action ?? 'See full report below'}</p>
           <div className="result-hero__type">
@@ -82,215 +94,203 @@ export default function ResultPage() {
           </div>
         </div>
 
-        <div style={{ padding:'0 20px' }}>
+        <div className="result-body">
 
-          {/* ── SIMILAR PATIENTS FROM REAL CSV ── */}
-          <div className="result-card" style={{ marginTop:20 }}>
-            <h3 className="result-card__title">
-              {csvLoading ? '⏳ Comparing your answers…' : '👥 People with a similar profile'}
-            </h3>
-            {csvLoading ? (
-              <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-                {[80,60,40].map((w,i) => (
-                  <div key={i} style={{ height:16, width:`${w}%`, background:'var(--surf3)', borderRadius:8, animation:'shimmer 1.4s ease-in-out infinite' }} />
-                ))}
+          {/* ── SIMILAR PATIENTS ── */}
+          <section className="r-card">
+            <div className="r-card__head">
+              <div className="r-card__icon" style={{background:'var(--p50)'}}>👥</div>
+              <div>
+                <h3 className="r-card__title">{csvLoading ? 'Comparing your answers…' : 'People with a similar profile'}</h3>
+                {!csvLoading && similar?.count > 0 && (
+                  <p className="r-card__sub">Group of {similar.count.toLocaleString()} people, matched on inattention, hyperactivity, and impulsivity</p>
+                )}
               </div>
-            ) : similar && similar.count > 0 ? (
+            </div>
+
+            {csvLoading ? (
+              <div className="r-skeleton-group">
+                {[80,60,40].map((w,i) => <div key={i} className="r-skeleton" style={{width:`${w}%`}} />)}
+              </div>
+            ) : similar?.count > 0 ? (
               <>
-                <p className="result-card__sub">
-                  Out of a group of {similar.count.toLocaleString()} people with similar inattention,
-                  hyperactivity, and impulsivity levels to yours
-                </p>
-
-                {/* Big stat */}
-                <div style={{ background: risk.bg, borderRadius:18, padding:'20px', marginBottom:16, textAlign:'center' }}>
-                  <div style={{ fontSize:56, fontWeight:900, color:risk.color, lineHeight:1 }}>
-                    {similar.rate}%
-                  </div>
-                  <div style={{ fontSize:15, color:'var(--ink2)', marginTop:4 }}>
-                    were later diagnosed with ADHD
-                  </div>
-                  <div style={{ fontSize:12, color:'var(--ink3)', marginTop:8 }}>
-                    ({similar.adhdCount} of {similar.count.toLocaleString()} people)
-                  </div>
+                <div className="r-stat-hero" style={{background:risk.bg}}>
+                  <div className="r-stat-hero__num" style={{color:risk.color}}>{similar.rate}%</div>
+                  <div className="r-stat-hero__label">were later diagnosed with ADHD</div>
+                  <div className="r-stat-hero__sub">({similar.adhdCount} of {similar.count.toLocaleString()} people)</div>
                 </div>
 
-                {/* Confidence note — honest about sample size */}
-                {similar.confidence === 'low' && (
-                  <div className="assess-insight assess-insight--orange" style={{ marginBottom:14 }}>
-                    ℹ️ This is based on a smaller group ({similar.count} people), so treat it as a rough
-                    estimate rather than a precise number.
-                  </div>
-                )}
-                {similar.confidence === 'moderate' && (
-                  <div className="assess-insight assess-insight--purple" style={{ marginBottom:14 }}>
-                    ℹ️ Based on {similar.count} people with a similar profile — a reasonably solid comparison group.
-                  </div>
+                {CONFIDENCE_COPY[similar.confidence]?.note && (
+                  <div className="r-note r-note--orange">ℹ️ {CONFIDENCE_COPY[similar.confidence].note}</div>
                 )}
 
-                {/* Visual bar */}
-                <div style={{ marginBottom:12 }}>
-                  <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, color:'var(--ink3)', marginBottom:6 }}>
-                    <span>People like you ({similar.count.toLocaleString()})</span>
-                    <span style={{ fontWeight:700, color:risk.color }}>{similar.rate}%</span>
+                <div className="r-compare-bar">
+                  <div className="r-compare-bar__row">
+                    <span>People like you</span><strong style={{color:risk.color}}>{similar.rate}%</strong>
                   </div>
-                  <div style={{ height:12, background:'var(--surf3)', borderRadius:999, overflow:'hidden' }}>
-                    <div style={{ height:'100%', width:`${similar.rate}%`, background:risk.color, borderRadius:999, transition:'width 1.2s var(--ease)' }} />
-                  </div>
+                  <div className="r-track"><div className="r-fill" style={{width:`${similar.rate}%`, background:risk.color}} /></div>
                 </div>
-                <div style={{ marginBottom:0 }}>
-                  <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, color:'var(--ink3)', marginBottom:6 }}>
-                    <span>Everyone in our data</span>
-                    <span style={{ fontWeight:700, color:'var(--ink3)' }}>{DATASET.adhdRate}%</span>
+                <div className="r-compare-bar">
+                  <div className="r-compare-bar__row">
+                    <span>Everyone in our data</span><strong>{DATASET.adhdRate}%</strong>
                   </div>
-                  <div style={{ height:12, background:'var(--surf3)', borderRadius:999, overflow:'hidden' }}>
-                    <div style={{ height:'100%', width:`${DATASET.adhdRate}%`, background:'var(--border)', borderRadius:999 }} />
-                  </div>
+                  <div className="r-track"><div className="r-fill" style={{width:`${DATASET.adhdRate}%`, background:'var(--border)'}} /></div>
                 </div>
               </>
             ) : (
-              <p style={{ color:'var(--ink3)', fontSize:14 }}>Could not load CSV data. Using pre-computed rates.</p>
+              <p className="r-empty">Not enough data to build a comparison group.</p>
             )}
-          </div>
+          </section>
 
-          {/* ── ACADEMIC IMPACT FROM CSV ── */}
-          <div className="result-card">
-            <h3 className="result-card__title">📚 Academic Impact (real data)</h3>
+          {/* ── ACADEMIC IMPACT ── */}
+          <section className="r-card">
+            <div className="r-card__head">
+              <div className="r-card__icon" style={{background:'var(--o50)'}}>📚</div>
+              <div>
+                <h3 className="r-card__title">Academic impact</h3>
+                {!csvLoading && academicData && (
+                  <p className="r-card__sub">Group of {academicData.sampleSize.toLocaleString()} people with a similar symptom total</p>
+                )}
+              </div>
+            </div>
+
             {csvLoading ? (
-              <div style={{ height:60, background:'var(--surf3)', borderRadius:12, animation:'shimmer 1.4s ease-in-out infinite' }} />
-            ) : academicData ? (
+              <div className="r-skeleton" style={{height:60}} />
+            ) : academicData && academicData.confidence !== 'low' ? (
               <>
-                <p className="result-card__sub">
-                  Students with your symptom total ({academicData.symptomSum}) in our dataset (n={academicData.sampleSize})
-                </p>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12 }}>
-                  <div style={{ background:'var(--r50)', borderRadius:14, padding:'14px', textAlign:'center' }}>
-                    <div style={{ fontSize:28, fontWeight:900, color:'var(--r500)' }}>{academicData.yourGroupAvg}</div>
-                    <div style={{ fontSize:11, color:'var(--ink3)', marginTop:2 }}>Your group's avg academic score</div>
+                <div className="r-split">
+                  <div className="r-split__cell" style={{background:'var(--r50)'}}>
+                    <div className="r-split__num" style={{color:'var(--r500)'}}>{academicData.yourGroupAvg}</div>
+                    <div className="r-split__label">Your group's average</div>
                   </div>
-                  <div style={{ background:'var(--g50)', borderRadius:14, padding:'14px', textAlign:'center' }}>
-                    <div style={{ fontSize:28, fontWeight:900, color:'var(--g500)' }}>{academicData.populationAvg}</div>
-                    <div style={{ fontSize:11, color:'var(--ink3)', marginTop:2 }}>Population avg academic score</div>
+                  <div className="r-split__cell" style={{background:'var(--g50)'}}>
+                    <div className="r-split__num" style={{color:'var(--g500)'}}>{academicData.populationAvg}</div>
+                    <div className="r-split__label">Overall population average</div>
                   </div>
                 </div>
                 {academicData.gap > 0 && (
-                  <div style={{ background:'var(--o50)', borderRadius:12, padding:'12px 14px', fontSize:13, color:'var(--ink2)', lineHeight:1.5 }}>
-                    ⚠️ Your symptom group scores <strong style={{ color:'var(--o500)' }}>{academicData.gap} points lower</strong> than the overall population on average. FocusFlow's focus tools are designed to close this gap.
+                  <div className="r-note r-note--orange">
+                    ⚠️ Your symptom group scores <strong>{academicData.gap} points lower</strong> on average.
+                    FocusFlow's focus tools are designed to help close this gap.
                   </div>
                 )}
               </>
             ) : (
-              <p style={{ fontSize:14, color:'var(--ink3)' }}>Academic data from CSV unavailable.</p>
+              <p className="r-empty">Not enough similar records in our data to estimate this reliably — skipping rather than guessing.</p>
             )}
-          </div>
+          </section>
 
           {/* ── SCORE BREAKDOWN ── */}
-          <div className="result-card">
-            <h3 className="result-card__title">Score Breakdown</h3>
-            <p className="result-card__sub">ADHD diagnosis rates per score from 2,000 real patients</p>
+          <section className="r-card">
+            <div className="r-card__head">
+              <div className="r-card__icon" style={{background:'var(--p50)'}}>🧮</div>
+              <div>
+                <h3 className="r-card__title">Score breakdown</h3>
+                <p className="r-card__sub">ADHD diagnosis rate at each of your scores, from 2,000 real patients</p>
+              </div>
+            </div>
+
             {bd.map(b => (
-              <div key={b.label} className="breakdown-row">
-                <div className="breakdown-row__meta">
-                  <span className="breakdown-row__label">{b.label} — {b.raw}/9</span>
-                  <span className="breakdown-row__raw">{b.weight}% model weight</span>
+              <div key={b.label} className="r-breakdown-row">
+                <div className="r-breakdown-row__top">
+                  <span className="r-breakdown-row__label">{b.label} <span className="r-breakdown-row__raw">{b.raw}/9</span></span>
+                  <span className="r-breakdown-row__weight">{b.weight}% of score</span>
                 </div>
-                <div style={{ fontSize:12, color:'var(--ink3)', marginBottom:6 }}>{b.description}</div>
-                <div className="breakdown-row__bar">
-                  <div className="breakdown-row__fill" style={{ width:`${b.score}%`, background:b.color }} />
-                </div>
-                <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, color:'var(--ink3)', marginTop:4 }}>
-                  <span>0%</span>
-                  <span style={{ fontWeight:800, color:b.color }}>{b.score}% ADHD rate at this score</span>
-                  <span>100%</span>
-                </div>
+                <div className="r-track"><div className="r-fill" style={{ width:`${b.score}%`, background:b.color }} /></div>
+                <div className="r-breakdown-row__note">{b.description}</div>
               </div>
             ))}
 
-            {/* Modifiers */}
             {modifiers.length > 0 && (
-              <div style={{ marginTop:14, paddingTop:14, borderTop:'1px solid var(--border)' }}>
-                <p style={{ fontSize:12, fontWeight:700, color:'var(--ink3)', textTransform:'uppercase', letterSpacing:'.5px', marginBottom:10 }}>
-                  Risk modifiers applied
-                </p>
-                <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
+              <div className="r-modifiers">
+                <p className="r-modifiers__label">Risk modifiers applied</p>
+                <div className="r-modifiers__list">
                   {modifiers.map(m => (
-                    <div key={m.label} style={{ display:'flex', gap:6, alignItems:'center',
-                      background:'var(--surf2)', borderRadius:10, padding:'6px 12px' }}>
-                      <span className={`ui-badge ui-badge--${m.badge}`} style={{ fontSize:11 }}>{m.pts}</span>
-                      <span style={{ fontSize:12, color:'var(--ink2)', fontWeight:600 }}>{m.label}</span>
+                    <div key={m.label} className="r-modifier-chip">
+                      <span className={`ui-badge ui-badge--${m.badge}`}>{m.pts}</span>
+                      <span>{m.label}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
-          </div>
+          </section>
 
-          {/* ── EDUCATION STAGE STATS FROM CSV ── */}
+          {/* ── EDUCATION GROUP ── */}
           {!csvLoading && ageStats && (
-            <div className="result-card">
-              <h3 className="result-card__title">🎓 Your Education Group ({assessment?.educationStage})</h3>
-              <p className="result-card__sub">Real stats from {ageStats.total} patients in this group</p>
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
+            <section className="r-card">
+              <div className="r-card__head">
+                <div className="r-card__icon" style={{background:'var(--g50)'}}>🎓</div>
+                <div>
+                  <h3 className="r-card__title">Your education group</h3>
+                  <p className="r-card__sub">{assessment?.educationStage} · {ageStats.total.toLocaleString()} people in our data</p>
+                </div>
+              </div>
+              <div className="r-split r-split--3">
+                <div className="r-split__cell">
+                  <div className="r-split__num">{ageStats.total.toLocaleString()}</div>
+                  <div className="r-split__label">Total people</div>
+                </div>
+                <div className="r-split__cell">
+                  <div className="r-split__num" style={{color:risk.color}}>{ageStats.rate}%</div>
+                  <div className="r-split__label">ADHD diagnosed</div>
+                </div>
+                <div className="r-split__cell">
+                  <div className="r-split__num" style={{color:'var(--g500)'}}>{ageStats.avgAcademic}</div>
+                  <div className="r-split__label">Avg academic score</div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ── HOW YOU COMPARE — grouped horizontal bars, not a cramped table ── */}
+          <section className="r-card">
+            <div className="r-card__head">
+              <div className="r-card__icon" style={{background:'var(--surf3)'}}>📐</div>
+              <div>
+                <h3 className="r-card__title">How you compare</h3>
+                <p className="r-card__sub">vs. all 2,000 people in our data</p>
+              </div>
+            </div>
+
+            <div className="r-legend">
+              <span><i style={{background:'var(--p500)'}} /> You</span>
+              <span><i style={{background:'var(--r400,#FF8F8F)'}} /> ADHD average</span>
+              <span><i style={{background:'var(--g400,#7FE0BB)'}} /> Non-ADHD average</span>
+            </div>
+
+            {compareRows.map(r => (
+              <div key={r.label} className="r-cmp-group">
+                <div className="r-cmp-group__label">{r.label}</div>
                 {[
-                  { label:'Total in group', val:ageStats.total, color:'var(--ink)' },
-                  { label:'ADHD diagnosed', val:`${ageStats.rate}%`, color:risk.color },
-                  { label:'Avg academic', val:ageStats.avgAcademic, color:'var(--g500)' },
-                ].map(s => (
-                  <div key={s.label} style={{ background:'var(--surf2)', borderRadius:12, padding:'12px 10px', textAlign:'center' }}>
-                    <div style={{ fontSize:20, fontWeight:900, color:s.color }}>{s.val}</div>
-                    <div style={{ fontSize:10, color:'var(--ink3)', marginTop:4, lineHeight:1.3 }}>{s.label}</div>
+                  { key:'you',  val:r.you,  color:'var(--p500)' },
+                  { key:'adhd', val:r.adhd, color:'var(--r400,#FF8F8F)' },
+                  { key:'non',  val:r.non,  color:'var(--g400,#7FE0BB)' },
+                ].map(row => (
+                  <div key={row.key} className="r-cmp-group__row">
+                    <div className="r-track r-track--sm">
+                      <div className="r-fill" style={{ width:`${Math.min((row.val/r.max)*100,100)}%`, background:row.color }} />
+                    </div>
+                    <span className="r-cmp-group__val">{row.val}{r.suffix}</span>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* ── COMPARISON TABLE ── */}
-          <div className="result-card">
-            <h3 className="result-card__title">How you compare</h3>
-            <p className="result-card__sub">vs. all 2,000 patients in ADHD.csv</p>
-            <div className="cmp-header">
-              <span></span><span>You</span><span>ADHD avg</span><span>Non-ADHD</span>
-            </div>
-            {[
-              { label:'Inattention', you:`${inn}/9`, adhd:`${DATASET.adhd.inn}/9`, non:`${DATASET.nonAdhd.inn}/9` },
-              { label:'Hyperactivity', you:`${hyp}/9`, adhd:`${DATASET.adhd.hyp}/9`, non:`${DATASET.nonAdhd.hyp}/9` },
-              { label:'Impulsivity', you:`${imp}/9`, adhd:`${DATASET.adhd.imp}/9`, non:`${DATASET.nonAdhd.imp}/9` },
-              { label:'ADHD Risk', you:`${s}%`, adhd:'72.1%', non:'57.8%' },
-              { label:'Academic (pred.)', you:`${predictedAcademic(inn,hyp,imp)}`, adhd:`${DATASET.adhd.academic}`, non:`${DATASET.nonAdhd.academic}` },
-            ].map(r => (
-              <div key={r.label} className="cmp-row">
-                <span className="cmp-row__label">{r.label}</span>
-                <span className="cmp-row__you">{r.you}</span>
-                <span className="cmp-row__adhd">{r.adhd}</span>
-                <span className="cmp-row__non">{r.non}</span>
-              </div>
             ))}
-          </div>
+          </section>
 
           {/* ── DISCLAIMER ── */}
-          <div style={{ background:'var(--o50)', borderRadius:14, padding:'14px 16px', marginBottom:28 }}>
-            <p style={{ fontSize:13, color:'#854D0E', lineHeight:1.6 }}>
-              ⚠️ <strong>Important:</strong> This is a statistical screening tool built on real patient data —
-              not a clinical diagnosis. Scores ≥65% indicate professional evaluation is recommended.
-              Please consult a psychiatrist or clinical psychologist for a formal assessment.
-            </p>
+          <div className="r-disclaimer">
+            <p><strong>⚠️ Important:</strong> This is a statistical screening tool built on real patient data —
+            not a clinical diagnosis. Scores ≥65% indicate professional evaluation is recommended.
+            Please consult a psychiatrist or clinical psychologist for a formal assessment.</p>
           </div>
         </div>
       </div>
 
-      <div style={{ padding:'16px 20px 40px', borderTop:'1px solid var(--border)', flexShrink:0 }}>
+      <div className="r-footer">
         <Btn onClick={() => navigate('/home')}>Build My Focus Plan 🚀</Btn>
-        <button onClick={() => navigate('/q1')}
-          style={{ display:'block', width:'100%', textAlign:'center', marginTop:12,
-            border:'none', background:'none', fontSize:14, fontWeight:600, color:'var(--ink3)', cursor:'pointer' }}>
-          Retake Assessment
-        </button>
+        <button onClick={() => navigate('/q1')} className="r-footer__retake">Retake Assessment</button>
       </div>
-
-      <style>{`
-        @keyframes shimmer { 0%,100%{opacity:.5} 50%{opacity:1} }
-      `}</style>
     </div>
   );
 }

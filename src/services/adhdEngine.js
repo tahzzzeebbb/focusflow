@@ -111,22 +111,33 @@ export async function findSimilarPatients(inn, hyp, imp, opts = {}) {
 /**
  * Get real academic score for users with same symptom total from CSV.
  */
-export async function getAcademicImpact(inn, hyp, imp) {
+export async function getAcademicImpact(inn, hyp, imp, opts = {}) {
+  const { minSample = 30, maxTolerance = 5 } = opts;
   const rows = await loadCSV();
-  const symSum = inn + hyp + imp;
-  // Find patients with same SymptomSum ± 1
-  const similar = rows.filter(r =>
-    Math.abs(parseInt(r.SymptomSum) - symSum) <= 1
-  );
+  // Real SymptomSum in the CSV tops out around 19 — cap so we don't
+  // search for a sum that doesn't meaningfully occur in the data.
+  const symSum = Math.min(inn + hyp + imp, 19);
+
+  let tolerance = 1;
+  let similar = [];
+  while (tolerance <= maxTolerance) {
+    similar = rows.filter(r => Math.abs(parseInt(r.SymptomSum) - symSum) <= tolerance);
+    if (similar.length >= minSample) break;
+    tolerance++;
+  }
   if (!similar.length) return null;
+
   const avgAcademic = similar.reduce((s,r) => s + parseFloat(r.AcademicScore), 0) / similar.length;
   const avgAll = 77.2;
+  const confidence = similar.length >= 100 ? 'high' : similar.length >= minSample ? 'moderate' : 'low';
+
   return {
     yourGroupAvg: Math.round(avgAcademic * 10) / 10,
     populationAvg: avgAll,
     gap: Math.round((avgAll - avgAcademic) * 10) / 10,
     sampleSize: similar.length,
     symptomSum: symSum,
+    confidence,
   };
 }
 
