@@ -11,7 +11,7 @@ const MODES = [
 
 export default function FocusPage() {
   const navigate = useNavigate();
-  const { showToast, setXp } = useApp();
+  const { showToast, logFocusSession } = useApp();
   const [modeIdx, setModeIdx] = useState(0);
   const [secs, setSecs]       = useState(25*60);
   const [running, setRunning] = useState(false);
@@ -30,7 +30,7 @@ export default function FocusPage() {
     if(running){
       iv.current=setInterval(()=>{
         setSecs(s=>{
-          if(s<=1){clearInterval(iv.current);setRunning(false);setSessions(n=>n+1);setXp(x=>x+50);showToast('🎯 Session complete! +50 XP 🔥');return 0;}
+          if(s<=1){clearInterval(iv.current);setRunning(false);setSessions(n=>n+1);if(mode.label==='Focus'){logFocusSession(mode.mins);}showToast(mode.label==='Focus'?'🎯 Session complete! +50 XP 🔥':'☕ Break complete!');return 0;}
           return s-1;
         });
       },1000);
@@ -49,7 +49,7 @@ export default function FocusPage() {
         {/* Real data note */}
         <div style={{margin:'0 20px 20px',background:'var(--surf2)',borderRadius:12,padding:'10px 14px',display:'flex',gap:8,alignItems:'center'}}>
           <span style={{fontSize:14}}>📊</span>
-          <span style={{fontSize:12,color:'var(--ink2)'}}>Patients who completed 4 pomodoros/day showed <strong>34% better task completion</strong> in our 2,000 patient study</span>
+          <span style={{fontSize:12,color:'var(--ink2)'}}>The Pomodoro technique breaks work into short, timed sprints — this fits how ADHD attention naturally cycles, instead of fighting it.</span>
         </div>
 
         {/* Mode tabs */}

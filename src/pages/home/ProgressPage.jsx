@@ -104,20 +104,14 @@ export default function ProgressPage() {
           </div>
         )}
 
-        {/* Real data insight */}
+        {/* Encouragement — honest, no fabricated stats */}
         <div style={{margin:'0 20px',background:'var(--p50)',border:'1px solid var(--p100)',borderRadius:18,padding:18,marginBottom:24}}>
-          <div style={{fontSize:15,fontWeight:800,color:'var(--p600)',marginBottom:8}}>📊 Research Insight</div>
+          <div style={{fontSize:15,fontWeight:800,color:'var(--p600)',marginBottom:8}}>💪 Keep it up</div>
           <p style={{fontSize:13,color:'var(--ink2)',lineHeight:1.6}}>
-            From our {DATASET.total.toLocaleString()} patient dataset: patients who maintained
-            <strong style={{color:'var(--p500)'}}> 7+ day streaks</strong> showed
-            <strong style={{color:'var(--g500)'}}> 23% better focus scores</strong> and
-            <strong style={{color:'var(--o500)'}}> 18% improved academic performance</strong> over 3 months.
-            You're on a <strong>{streak}-day streak</strong>. Keep going!
+            You're on a <strong>{streak}-day streak</strong>. Consistency — showing up daily, even briefly —
+            is one of the most well-supported ways to build focus habits for ADHD. Small, repeated actions
+            beat occasional big pushes.
           </p>
-          <div style={{display:'flex',gap:8,marginTop:10,flexWrap:'wrap'}}>
-            <span className="ui-badge ui-badge--purple">n={DATASET.adhdCount} ADHD patients</span>
-            <span className="ui-badge ui-badge--green">Real CSV data</span>
-          </div>
         </div>
 
         <div style={{height:20}}/>

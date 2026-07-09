@@ -69,24 +69,42 @@ export async function loadCSV() {
  * Find real patients from CSV similar to the user's profile.
  * Returns { count, adhdCount, rate, patients[] }
  */
-export async function findSimilarPatients(inn, hyp, imp, tolerance = 1) {
+/**
+ * Find real patients from CSV similar to the user's profile.
+ *
+ * A sample of 10-12 patients giving "100%" is statistically meaningless —
+ * one different patient would swing the rate by 8-10 points. We require
+ * a minimum sample size (default 50) before treating the rate as
+ * informative, widening the match tolerance until we reach it (capped
+ * so we don't end up matching the entire dataset and calling it "similar").
+ */
+export async function findSimilarPatients(inn, hyp, imp, opts = {}) {
+  const { minSample = 50, maxTolerance = 4 } = opts;
   const rows = await loadCSV();
-  const similar = rows.filter(r =>
-    Math.abs(parseInt(r.InattentionScore)   - inn) <= tolerance &&
-    Math.abs(parseInt(r.HyperactivityScore) - hyp) <= tolerance &&
-    Math.abs(parseInt(r.ImpulsivityScore)   - imp) <= tolerance
-  );
-  if (similar.length < 5) {
-    // Widen tolerance if too few matches
-    return findSimilarPatients(inn, hyp, imp, tolerance + 1);
+
+  let tolerance = 1;
+  let similar = [];
+  while (tolerance <= maxTolerance) {
+    similar = rows.filter(r =>
+      Math.abs(parseInt(r.InattentionScore)   - inn) <= tolerance &&
+      Math.abs(parseInt(r.HyperactivityScore) - hyp) <= tolerance &&
+      Math.abs(parseInt(r.ImpulsivityScore)   - imp) <= tolerance
+    );
+    if (similar.length >= minSample) break;
+    tolerance++;
   }
+
   const adhdCount = similar.filter(r => r.ADHD === '1').length;
+  const confidence = similar.length >= 100 ? 'high' : similar.length >= minSample ? 'moderate' : 'low';
+
   return {
     count: similar.length,
     adhdCount,
-    rate: Math.round(adhdCount / similar.length * 100),
+    rate: similar.length ? Math.round(adhdCount / similar.length * 100) : null,
     patients: similar,
     tolerance,
+    confidence,
+    reachedMinSample: similar.length >= minSample,
   };
 }
 

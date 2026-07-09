@@ -1,29 +1,37 @@
 # Seeding your Neo4j AuraDB instance
 
-`seed.cypher` populates your graph with Treatment, Outcome, Symptom, and
-Patient nodes plus the relationships Cognith expects:
+`seed.cypher` populates your graph directly from the real source files
+(`nodes.csv`, `outcome.csv`, `relationships.csv`) — 16 Treatments,
+13 Outcomes, and 39 relationships, each citing NIMH, CDC, MayoClinic,
+or APA as its source.
 
-- `(:Treatment)-[:IMPROVES {weight}]->(:Outcome)`
-- `(:Treatment)-[:TREATS_SYMPTOM]->(:Symptom)`
-- `(:Patient)-[:HAS_SYMPTOM {score}]->(:Symptom)`
+## What's in the graph
 
-**Effectiveness weights are illustrative approximations**, drawn from
-published ranges (NIMH's MTA study, stimulant response-rate literature,
-neurofeedback remission studies, CBT/ADHD reviews) — not the exact result of
-any single trial. They're a reasonable starting point for a demo or
-teaching project, not a clinical dataset. Swap in your own numbers if you
-have a real dataset to work from.
+- `(:Treatment)-[:IMPROVES]->(:Outcome)` — a treatment documented to
+  improve an outcome (28 relationships)
+- `(:Outcome)-[:LEADS_TO]->(:Outcome)` — cascading effects, e.g.
+  "Improved attention" leads to "Improved task completion" leads to
+  "Better academic performance" (10 relationships)
+
+**There is no numeric effectiveness percentage in this data.** The
+source files describe *documented, qualitative* relationships from
+clinical guidelines — not measured effect sizes from a trial. The app
+does not invent a fake "72% effective" number for this graph; it shows
+the relationship and its citation instead.
+
+(Separately, `ADHD.csv` — the 2,000-patient survey dataset — powers the
+ADHD risk assessment and its own real statistics. The two datasets are
+independent; don't confuse a citation-graph relationship with a
+patient-survey statistic.)
 
 ## How to run this against AuraDB
 
 1. Go to [console.neo4j.io](https://console.neo4j.io) and open your instance.
-2. Click **"Query"** (opens Neo4j's browser-based query workspace).
-3. Open `seed.cypher` in a text editor, select all, copy.
-4. Paste into the query editor and run it (▶ button, or `Ctrl+Enter`).
-5. You should see a result table showing node counts by type
-   (Treatment, Outcome, Symptom, Patient).
+2. Click **"Query"**.
+3. Open `seed.cypher`, copy all, paste into the query editor, run (▶ or `Ctrl+Enter`).
+4. You should see a result table: Treatment: 16, Outcome: 13.
 
-### Alternative: cypher-shell (if you have Neo4j tools installed locally)
+### Alternative: cypher-shell
 
 ```bash
 cypher-shell -a neo4j+s://<your-instance-id>.databases.neo4j.io \
@@ -33,13 +41,6 @@ cypher-shell -a neo4j+s://<your-instance-id>.databases.neo4j.io \
 
 ## Re-running
 
-The first line of the script (`MATCH (n) DETACH DELETE n;`) wipes all
-existing nodes before re-creating them — safe to run multiple times while
-you're experimenting, but **don't run this against a database that has
-real data you want to keep**.
-
-## Verifying it worked
-
-In the Cognith app, open the **Graph view** tab. You should see Treatment,
-Outcome, and Patient nodes connected by edges instead of the "graph is
-empty" message.
+Line 1 wipes all existing nodes before recreating them — safe to
+re-run while experimenting, but don't run against a database with
+real data you want to keep.

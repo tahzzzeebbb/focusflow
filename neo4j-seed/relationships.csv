@@ -1,0 +1,39 @@
+from,relationship,to
+Medication,IMPROVES,Improved attention
+Stimulant medication,IMPROVES,Improved attention
+Stimulant medication,IMPROVES,Reduced hyperactivity
+Non-stimulant medication,IMPROVES,Better impulse control
+Behavioral therapy,IMPROVES,Improved task completion
+Behavioral therapy,IMPROVES,Improved classroom behavior
+Psychotherapy,IMPROVES,Improved social functioning
+Psychotherapy,IMPROVES,Reduced anxiety
+Parent training,IMPROVES,Better impulse control
+Parent training,IMPROVES,Reduced disruptive behavior
+Cognitive Behavioral Therapy,IMPROVES,Better emotional regulation
+Cognitive Behavioral Therapy,IMPROVES,Reduced anxiety
+School-based intervention,IMPROVES,Better academic performance
+School-based intervention,IMPROVES,Improved classroom behavior
+Special education support,IMPROVES,Better academic performance
+Lifestyle changes,IMPROVES,Reduced stress levels
+Diet modification,IMPROVES,Improved attention
+Regular physical activity,IMPROVES,Reduced hyperactivity
+Sleep management,IMPROVES,Improved attention
+Mindfulness training,IMPROVES,Better emotional regulation
+Social skills training,IMPROVES,Better peer relationships
+Teacher behavioral strategies,IMPROVES,Improved classroom behavior
+Improved attention,LEADS_TO,Improved task completion
+Improved task completion,LEADS_TO,Better academic performance
+Reduced hyperactivity,LEADS_TO,Better impulse control
+Better impulse control,LEADS_TO,Improved classroom behavior
+Improved classroom behavior,LEADS_TO,Better academic performance
+Improved social functioning,LEADS_TO,Better peer relationships
+Better peer relationships,LEADS_TO,Improved self-esteem
+Improved self-esteem,LEADS_TO,Reduced anxiety
+Better emotional regulation,LEADS_TO,Improved social functioning
+Reduced stress levels,LEADS_TO,Better emotional regulation
+Medication,IMPROVES,Reduced hyperactivity
+Behavioral therapy,IMPROVES,Better impulse control
+Psychotherapy,IMPROVES,Better peer relationships
+Parent training,IMPROVES,Improved social functioning
+Mindfulness training,IMPROVES,Improved self-esteem
+Lifestyle changes,IMPROVES,Better emotional regulation

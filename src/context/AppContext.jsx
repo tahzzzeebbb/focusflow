@@ -15,16 +15,26 @@ export function AppProvider({ children }) {
   const [score, setScore] = useState(null);
   const [toast, setToast] = useState({ msg: '', visible: false });
   const [mood, setMood] = useState(null);
+
+  // Starter tasks — suggestions for a new user, NOT pre-completed.
+  // A fresh account has done nothing yet; showing tasks as already
+  // checked off before the user has touched the app is misleading.
   const [tasks, setTasks] = useState([
-    { id:1, text:'Morning medication', done:true,  priority:'high',   time:'9:00 AM' },
-    { id:2, text:'Reply to emails',    done:true,  priority:'medium', time:'10:00 AM'},
-    { id:3, text:'Write project report',done:false, priority:'high',  time:'2:00 PM' },
-    { id:4, text:'Review design specs', done:false, priority:'medium',time:'3:30 PM' },
-    { id:5, text:'30 min walk',         done:false, priority:'low',   time:'6:00 PM' },
-    { id:6, text:'Journal entry',       done:false, priority:'low',   time:'9:00 PM' },
+    { id:1, text:'Take morning medication', done:false, priority:'high',   time:'9:00 AM' },
+    { id:2, text:'Reply to important emails',done:false, priority:'medium', time:'10:00 AM'},
+    { id:3, text:'Write project report',     done:false, priority:'high',  time:'2:00 PM' },
+    { id:4, text:'30 min walk',              done:false, priority:'low',   time:'6:00 PM' },
+    { id:5, text:'Journal entry',            done:false, priority:'low',   time:'9:00 PM' },
   ]);
-  const [streak, setStreak] = useState(7);
-  const [xp, setXp] = useState(340);
+
+  // Real progress state — starts at zero for every new user.
+  // These only grow through actual actions taken in this session
+  // (completing tasks, finishing focus sessions), never pre-filled.
+  const [streak, setStreak] = useState(0);
+  const [xp, setXp] = useState(0);
+  const [totalTasksCompleted, setTotalTasksCompleted] = useState(0);
+  const [totalFocusMinutes, setTotalFocusMinutes] = useState(0);
+  const [checkInsCount, setCheckInsCount] = useState(0);
 
   const updateAssessment = useCallback((key, value) => {
     setAssessment(prev => ({ ...prev, [key]: value }));
@@ -47,7 +57,9 @@ export function AppProvider({ children }) {
       const nowDone = !t.done;
       if (nowDone) {
         setXp(x => x + 10);
-        setStreak(s => s);
+        setTotalTasksCompleted(n => n + 1);
+      } else {
+        setTotalTasksCompleted(n => Math.max(0, n - 1));
       }
       return { ...t, done: nowDone };
     }));
@@ -55,6 +67,16 @@ export function AppProvider({ children }) {
 
   const addTask = useCallback((text) => {
     setTasks(prev => [...prev, { id: Date.now(), text, done: false, priority: 'medium', time: 'Today' }]);
+  }, []);
+
+  const logFocusSession = useCallback((minutes) => {
+    setTotalFocusMinutes(m => m + minutes);
+    setXp(x => x + 50);
+  }, []);
+
+  const logCheckIn = useCallback(() => {
+    setCheckInsCount(c => c + 1);
+    setStreak(s => s + 1); // simple model: each check-in day extends streak
   }, []);
 
   return (
@@ -66,6 +88,8 @@ export function AppProvider({ children }) {
       mood, setMood,
       tasks, toggleTask, addTask,
       streak, xp, setXp,
+      totalTasksCompleted, totalFocusMinutes, checkInsCount,
+      logFocusSession, logCheckIn,
     }}>
       {children}
     </AppContext.Provider>

@@ -26,7 +26,17 @@ export default function AuthPage() {
     if (Object.keys(e).length) { setErrors(e); return; }
     setLoading(true);
     await new Promise(r => setTimeout(r, 1000));
-    setUser({ name: form.name || 'Alex', email: form.email });
+
+    // Signup: use the name they typed (required field, always present).
+    // Login: there's no name field, so derive a display name from their
+    // email instead of ever hardcoding a placeholder name.
+    const displayName = mode === 'signup'
+      ? form.name.trim()
+      : form.email.split('@')[0]
+          .replace(/[._-]+/g, ' ')
+          .replace(/\b\w/g, c => c.toUpperCase());
+
+    setUser({ name: displayName, email: form.email });
     showToast(mode === 'signup' ? '🎉 Account created!' : '👋 Welcome back!');
     navigate('/q1');
   };

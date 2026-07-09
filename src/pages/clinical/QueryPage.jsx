@@ -1,21 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import { executeQuery, queryTemplates, getSymptoms, getTreatments, getOutcomes } from '../../services/queryService';
-import { DATASET } from '../../services/adhdEngine';
+import { executeQuery, queryTemplates, getTreatments, getOutcomes, getAllOutcomes } from '../../services/queryService';
 import './Clinical.css';
 
+// Only 3 query types — matched exactly to what the real graph contains
+// (Treatment, Outcome, IMPROVES, LEADS_TO). No fabricated "effectiveness %",
+// no Symptom/Patient lookups that don't exist in this graph.
 const QUERY_TYPES = [
-  { id:'treatmentsByOutcome', label:'Treatments by Outcome',    icon:'💊', desc:'What treats a specific outcome?',      color:'var(--p500)' },
-  { id:'outcomesBySymptom',   label:'Outcomes by Symptom',      icon:'🎯', desc:'What improves when a symptom is treated?', color:'var(--g500)' },
-  { id:'patientsBySymptom',   label:'Patients by Symptom',      icon:'👥', desc:'Real patients with this symptom',     color:'var(--o500)' },
-  { id:'treatmentEffectiveness', label:'Treatment Effectiveness', icon:'📈', desc:'How effective is a treatment?',      color:'var(--b500,#4A90D9)' },
-  { id:'symptomCorrelation',  label:'Symptom Correlation',      icon:'🔗', desc:'Correlate symptoms across patients',  color:'var(--r500)' },
+  { id:'treatmentsByOutcome', label:'Treatments for an Outcome', icon:'💊', desc:'Which treatments are documented to improve this?', color:'var(--p500)' },
+  { id:'treatmentEffectiveness', label:'What a Treatment Improves', icon:'📋', desc:'Which outcomes does this treatment target?', color:'var(--b500,#4A90D9)' },
+  { id:'outcomeCascade', label:'Outcome Chain', icon:'🔗', desc:'What leads to this, and what does it lead to?', color:'var(--g500)' },
 ];
 
 export default function QueryPage() {
   const navigate = useNavigate();
-  const { showToast } = useApp();
   const [queryType, setQueryType] = useState('treatmentsByOutcome');
   const [param, setParam]         = useState('');
   const [results, setResults]     = useState(null);
@@ -27,61 +26,51 @@ export default function QueryPage() {
 
   useEffect(() => {
     (async () => {
-      setParam('');
-      setResults(null);
-      setError('');
+      setParam(''); setResults(null); setError('');
       if (queryType === 'treatmentsByOutcome') setOptions(await getOutcomes());
-      else if (queryType === 'outcomesBySymptom' || queryType === 'patientsBySymptom') setOptions(await getSymptoms());
       else if (queryType === 'treatmentEffectiveness') setOptions(await getTreatments());
-      else setOptions([]);
+      else if (queryType === 'outcomeCascade') setOptions(await getAllOutcomes());
     })();
   }, [queryType]);
 
   const runQuery = async () => {
-    if (!param && queryType !== 'symptomCorrelation') {
-      setError('Please select or enter a value'); return;
-    }
+    if (!param) { setError('Please select or enter a value'); return; }
     setLoading(true); setError(''); setResults(null);
     try {
       let cypher = '';
-      if (queryType === 'treatmentsByOutcome')    cypher = queryTemplates.treatmentsByOutcome(param);
-      else if (queryType === 'outcomesBySymptom') cypher = queryTemplates.outcomesBySymptom(param);
-      else if (queryType === 'patientsBySymptom') cypher = queryTemplates.patientsBySymptom(param);
+      if (queryType === 'treatmentsByOutcome')       cypher = queryTemplates.treatmentsByOutcome(param);
       else if (queryType === 'treatmentEffectiveness') cypher = queryTemplates.treatmentEffectiveness(param);
-      else cypher = queryTemplates.symptomCorrelation();
+      else cypher = queryTemplates.outcomeCascade(param);
       const data = await executeQuery(cypher);
       setResults(data);
-      if (data.length === 0) setError('No results found. Try a different query.');
+      if (data.length === 0) setError('No results found. Try a different value.');
     } catch (e) {
       setError(e.message || 'Query failed — is Neo4j connected?');
     } finally { setLoading(false); }
   };
 
-  const getColumns = () => {
-    if (!results?.length) return [];
-    return Object.keys(results[0]);
-  };
+  const getColumns = () => (results?.length ? Object.keys(results[0]) : []);
 
   return (
     <div className="screen">
       <div className="clin-header sticky-header">
         <button className="clin-back" onClick={() => navigate('/home')}>←</button>
         <div>
-          <div className="clin-title">Neo4j Query Engine</div>
-          <div className="clin-subtitle">5 query types · Real graph data</div>
+          <div className="clin-title">Treatment-Outcome Query</div>
+          <div className="clin-subtitle">Neo4j graph · From NIMH, CDC, MayoClinic, APA</div>
         </div>
         <span style={{fontSize:20}}>🔍</span>
       </div>
 
       <div className="real-data-banner">
         <span>🧠</span>
-        <span>Queries run directly on <strong>Neo4j AuraDB</strong> · Results from real treatment-outcome graph</span>
+        <span>These are documented relationships from clinical guidelines — not a measured effectiveness score</span>
       </div>
 
       <div className="screen__scroll">
         {/* Query type selector */}
         <div className="section" style={{marginTop:16}}>
-          <div className="section-title" style={{marginBottom:12}}>Select Query Type</div>
+          <div className="section-title" style={{marginBottom:12}}>What do you want to know?</div>
           <div style={{display:'flex',flexDirection:'column',gap:8}}>
             {QUERY_TYPES.map(qt => (
               <button key={qt.id}
@@ -100,42 +89,35 @@ export default function QueryPage() {
         </div>
 
         {/* Parameter input */}
-        {queryType !== 'symptomCorrelation' && (
-          <div className="section">
-            <div className="section-title" style={{marginBottom:12}}>
-              {queryType === 'treatmentsByOutcome' ? 'Select Outcome' :
-               queryType === 'treatmentEffectiveness' ? 'Select Treatment' : 'Select Symptom'}
-            </div>
-            {options.length > 0 ? (
-              <>
-                <div className="scroll-row" style={{marginBottom:10}}>
-                  {options.map(opt => (
-                    <button key={opt}
-                      className={`option-chip ${param===opt ? 'active' : ''}`}
-                      style={param===opt ? {background:selectedType.color,color:'#fff',borderColor:selectedType.color} : {}}
-                      onClick={() => setParam(opt)}>
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-                <div style={{textAlign:'center',fontSize:12,color:'var(--ink3)',marginBottom:8}}>— or type manually —</div>
-              </>
-            ) : (
-              <div style={{fontSize:12,color:'var(--o500)',marginBottom:8,padding:'8px 12px',background:'var(--o50)',borderRadius:10}}>
-                ⚠️ Could not load options from Neo4j. Type manually below.
-              </div>
-            )}
-            <input
-              className="query-input"
-              value={param}
-              onChange={e => setParam(e.target.value)}
-              placeholder={queryType==='treatmentsByOutcome' ? 'e.g. Improved attention' :
-                           queryType==='treatmentEffectiveness' ? 'e.g. Stimulant medication' :
-                           'e.g. Inattention'}
-              onKeyDown={e => e.key==='Enter' && runQuery()}
-            />
+        <div className="section">
+          <div className="section-title" style={{marginBottom:12}}>
+            {queryType === 'treatmentEffectiveness' ? 'Select a Treatment' : 'Select an Outcome'}
           </div>
-        )}
+          {options.length > 0 ? (
+            <div className="scroll-row" style={{marginBottom:10}}>
+              {options.map(opt => (
+                <button key={opt}
+                  className={`option-chip ${param===opt ? 'active' : ''}`}
+                  style={param===opt ? {background:selectedType.color,color:'#fff',borderColor:selectedType.color} : {}}
+                  onClick={() => setParam(opt)}>
+                  {opt}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div style={{fontSize:12,color:'var(--o500)',marginBottom:8,padding:'8px 12px',background:'var(--o50)',borderRadius:10}}>
+              ⚠️ Could not load options from Neo4j. Check your connection, or type manually below.
+            </div>
+          )}
+          <div style={{textAlign:'center',fontSize:12,color:'var(--ink3)',margin:'6px 0 10px'}}>— or type manually —</div>
+          <input
+            className="query-input"
+            value={param}
+            onChange={e => setParam(e.target.value)}
+            placeholder={queryType==='treatmentEffectiveness' ? 'e.g. Stimulant medication' : 'e.g. Improved attention'}
+            onKeyDown={e => e.key==='Enter' && runQuery()}
+          />
+        </div>
 
         {error && (
           <div className="section">
@@ -143,7 +125,6 @@ export default function QueryPage() {
           </div>
         )}
 
-        {/* Run button */}
         <div className="section">
           <button className="clin-run-btn"
             style={{background: selectedType.color, boxShadow:`0 8px 24px ${selectedType.color}44`}}
@@ -156,55 +137,33 @@ export default function QueryPage() {
         {results && results.length > 0 && (
           <div className="section">
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-              <div className="section-title">{results.length} Results</div>
-              <span className="ui-badge ui-badge--green">From Neo4j AuraDB</span>
+              <div className="section-title">{results.length} Result{results.length!==1?'s':''}</div>
+              <span className="ui-badge ui-badge--green">Live from Neo4j</span>
             </div>
 
-            {/* Effectiveness bars for treatment queries */}
-            {(queryType==='treatmentsByOutcome' || queryType==='treatmentEffectiveness') && results[0]?.effectiveness && (
-              <div className="results-bars">
-                {results.slice(0,8).map((r,i) => (
-                  <div key={i} className="result-bar-row">
-                    <div className="result-bar-label">{r.treatment || r.outcome}</div>
-                    <div className="result-bar-track">
-                      <div className="result-bar-fill"
-                        style={{width:`${r.effectiveness}%`, background:selectedType.color}} />
+            {/* Cards with citation badges instead of fake effectiveness bars */}
+            <div style={{display:'flex',flexDirection:'column',gap:10}}>
+              {results.map((row,i) => (
+                <div key={i} style={{background:'var(--surf)',border:'1px solid var(--border)',borderRadius:14,padding:'14px 16px'}}>
+                  {Object.entries(row).map(([key,val]) => (
+                    <div key={key} style={{marginBottom:6}}>
+                      <div style={{fontSize:10,color:'var(--ink3)',textTransform:'uppercase',letterSpacing:'.5px',fontWeight:700}}>
+                        {key === 'citedBy' ? 'Source' : key.replace(/([A-Z])/g, ' $1')}
+                      </div>
+                      <div style={{fontSize:14,color:'var(--ink)',fontWeight: key==='treatment'||key==='outcome' ? 700 : 500}}>
+                        {key === 'citedBy'
+                          ? <span className="ui-badge ui-badge--purple">{val}</span>
+                          : String(val ?? '—')}
+                      </div>
                     </div>
-                    <div className="result-bar-val"
-                      style={{color:selectedType.color}}>{r.effectiveness}%</div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Table for all results */}
-            <div className="results-table-wrap">
-              <table className="results-table">
-                <thead>
-                  <tr>
-                    {getColumns().map(col => <th key={col}>{col}</th>)}
-                  </tr>
-                </thead>
-                <tbody>
-                  {results.map((row,i) => (
-                    <tr key={i}>
-                      {getColumns().map(col => (
-                        <td key={col}>
-                          {col==='effectiveness' ? (
-                            <span style={{fontWeight:700,color:selectedType.color}}>{row[col]}%</span>
-                          ) : String(row[col] ?? '—')}
-                        </td>
-                      ))}
-                    </tr>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              ))}
             </div>
 
-            {/* Data attribution */}
-            <div className="clin-attribution">
+            <div className="clin-attribution" style={{marginTop:12}}>
               <span>🔬</span>
-              <span>Results from Neo4j AuraDB · Relationship weights calibrated from {DATASET.total.toLocaleString()} patient records</span>
+              <span>Results from Neo4j AuraDB · Relationships sourced from NIMH, CDC, MayoClinic, and APA guidelines</span>
             </div>
           </div>
         )}

@@ -87,7 +87,7 @@ export default function ResultPage() {
           {/* ── SIMILAR PATIENTS FROM REAL CSV ── */}
           <div className="result-card" style={{ marginTop:20 }}>
             <h3 className="result-card__title">
-              {csvLoading ? '⏳ Loading real patient data…' : '👥 Real patients like you'}
+              {csvLoading ? '⏳ Comparing your answers…' : '👥 People with a similar profile'}
             </h3>
             {csvLoading ? (
               <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
@@ -95,36 +95,43 @@ export default function ResultPage() {
                   <div key={i} style={{ height:16, width:`${w}%`, background:'var(--surf3)', borderRadius:8, animation:'shimmer 1.4s ease-in-out infinite' }} />
                 ))}
               </div>
-            ) : similar ? (
+            ) : similar && similar.count > 0 ? (
               <>
                 <p className="result-card__sub">
-                  From ADHD.csv — patients with inattention {inn}±{similar.tolerance},
-                  hyperactivity {hyp}±{similar.tolerance}, impulsivity {imp}±{similar.tolerance}
+                  Out of a group of {similar.count.toLocaleString()} people with similar inattention,
+                  hyperactivity, and impulsivity levels to yours
                 </p>
 
                 {/* Big stat */}
                 <div style={{ background: risk.bg, borderRadius:18, padding:'20px', marginBottom:16, textAlign:'center' }}>
                   <div style={{ fontSize:56, fontWeight:900, color:risk.color, lineHeight:1 }}>
-                    {similar.adhdCount}
+                    {similar.rate}%
                   </div>
                   <div style={{ fontSize:15, color:'var(--ink2)', marginTop:4 }}>
-                    out of <strong>{similar.count}</strong> real patients with your profile had ADHD
+                    were later diagnosed with ADHD
                   </div>
-                  <div style={{ fontSize:28, fontWeight:900, color:risk.color, marginTop:8 }}>
-                    = {similar.rate}% diagnosis rate
-                  </div>
-                  <div style={{ fontSize:12, color:'var(--ink3)', marginTop:6 }}>
-                    Population average: {DATASET.adhdRate}%
-                    {similar.rate > DATASET.adhdRate
-                      ? ` · Your group is ${similar.rate - DATASET.adhdRate}% higher than average`
-                      : ` · Your group is ${DATASET.adhdRate - similar.rate}% lower than average`}
+                  <div style={{ fontSize:12, color:'var(--ink3)', marginTop:8 }}>
+                    ({similar.adhdCount} of {similar.count.toLocaleString()} people)
                   </div>
                 </div>
+
+                {/* Confidence note — honest about sample size */}
+                {similar.confidence === 'low' && (
+                  <div className="assess-insight assess-insight--orange" style={{ marginBottom:14 }}>
+                    ℹ️ This is based on a smaller group ({similar.count} people), so treat it as a rough
+                    estimate rather than a precise number.
+                  </div>
+                )}
+                {similar.confidence === 'moderate' && (
+                  <div className="assess-insight assess-insight--purple" style={{ marginBottom:14 }}>
+                    ℹ️ Based on {similar.count} people with a similar profile — a reasonably solid comparison group.
+                  </div>
+                )}
 
                 {/* Visual bar */}
                 <div style={{ marginBottom:12 }}>
                   <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, color:'var(--ink3)', marginBottom:6 }}>
-                    <span>ADHD in your group ({similar.count} patients)</span>
+                    <span>People like you ({similar.count.toLocaleString()})</span>
                     <span style={{ fontWeight:700, color:risk.color }}>{similar.rate}%</span>
                   </div>
                   <div style={{ height:12, background:'var(--surf3)', borderRadius:999, overflow:'hidden' }}>
@@ -133,7 +140,7 @@ export default function ResultPage() {
                 </div>
                 <div style={{ marginBottom:0 }}>
                   <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, color:'var(--ink3)', marginBottom:6 }}>
-                    <span>Overall population average</span>
+                    <span>Everyone in our data</span>
                     <span style={{ fontWeight:700, color:'var(--ink3)' }}>{DATASET.adhdRate}%</span>
                   </div>
                   <div style={{ height:12, background:'var(--surf3)', borderRadius:999, overflow:'hidden' }}>

@@ -1,59 +1,48 @@
 import { driver } from './neo4j';
 
+/**
+ * Query templates — matched to the REAL graph structure only.
+ * The seeded graph has exactly two node types (Treatment, Outcome)
+ * and two relationship types (IMPROVES, LEADS_TO), sourced from
+ * nodes.csv / outcome.csv / relationships.csv. There is no Symptom
+ * or Patient node in this graph, and no numeric effectiveness weight
+ * on any relationship — so query types that would require those
+ * (symptom correlation, patient lookups, effectiveness ranking) are
+ * intentionally not offered here. Patient-level symptom data lives
+ * in ADHD.csv and powers the Assessment/Analytics pages instead.
+ */
 export const queryTemplates = {
+    // What treatments are documented to improve this outcome?
     treatmentsByOutcome: (outcome) => `
-        MATCH (t:Treatment)-[r:IMPROVES]->(o:Outcome)
-        WHERE toLower(o.name) CONTAINS toLower('${outcome}') 
+        MATCH (t:Treatment)-[:IMPROVES]->(o:Outcome)
+        WHERE toLower(o.name) CONTAINS toLower('${outcome}')
            OR toLower(o.name) = toLower('${outcome}')
-        RETURN DISTINCT t.name as treatment, t.category as category, 
-               round(r.weight * 100) as effectiveness
-        ORDER BY effectiveness DESC
+        RETURN DISTINCT t.name as treatment, t.source as citedBy, o.name as outcome
+        ORDER BY t.name
         LIMIT 20
     `,
 
-    outcomesBySymptom: (symptom) => `
-        MATCH (s:Symptom)<-[:TREATS_SYMPTOM]-(t:Treatment)-[r:IMPROVES]->(o:Outcome)
-        WHERE toLower(s.name) CONTAINS toLower('${symptom}') 
-           OR toLower(s.name) = toLower('${symptom}')
-        RETURN DISTINCT o.name as outcome, o.category as category,
-               t.name as viaTreatment,
-               round(r.weight * 100) as effectiveness
-        ORDER BY effectiveness DESC
-        LIMIT 20
-    `,
-
-    patientsBySymptom: (symptom, minScore = 5) => `
-        MATCH (p:Patient)-[h:HAS_SYMPTOM]->(s:Symptom)
-        WHERE (toLower(s.name) CONTAINS toLower('${symptom}') 
-            OR toLower(s.name) = toLower('${symptom}'))
-          AND h.score >= ${minScore}
-        RETURN p.age as age,
-               p.gender as gender,
-               p.inattentionScore as inattention,
-               p.hyperactivityScore as hyperactivity,
-               p.impulsivityScore as impulsivity,
-               h.score as severity
-        ORDER BY h.score DESC
-        LIMIT 20
-    `,
-
-    symptomCorrelation: () => `
-        MATCH (p:Patient)
-        WHERE p.inattentionScore IS NOT NULL
-        RETURN p.age, p.gender, 
-               p.inattentionScore, p.hyperactivityScore, p.impulsivityScore,
-               CASE WHEN p.adhd = 1 THEN 'Yes' ELSE 'No' END as hasADHD
-        LIMIT 30
-    `,
-
+    // What outcomes does this treatment improve, directly?
     treatmentEffectiveness: (treatment) => `
-        MATCH (t:Treatment)-[r:IMPROVES]->(o:Outcome)
-        WHERE toLower(t.name) CONTAINS toLower('${treatment}') 
+        MATCH (t:Treatment)-[:IMPROVES]->(o:Outcome)
+        WHERE toLower(t.name) CONTAINS toLower('${treatment}')
            OR toLower(t.name) = toLower('${treatment}')
-        RETURN o.name as outcome, o.category as category,
-               round(r.weight * 100) as effectiveness
-        ORDER BY effectiveness DESC
+        RETURN o.name as outcome, o.source as citedBy
+        ORDER BY o.name
         LIMIT 15
+    `,
+
+    // Cascade: what outcomes does this outcome lead to, and what leads to it?
+    outcomeCascade: (outcome) => `
+        MATCH (o:Outcome)
+        WHERE toLower(o.name) CONTAINS toLower('${outcome}')
+           OR toLower(o.name) = toLower('${outcome}')
+        OPTIONAL MATCH (o)-[:LEADS_TO]->(next:Outcome)
+        OPTIONAL MATCH (prev:Outcome)-[:LEADS_TO]->(o)
+        RETURN o.name as outcome,
+               collect(DISTINCT next.name) as leadsTo,
+               collect(DISTINCT prev.name) as causedBy
+        LIMIT 10
     `,
 
     custom: (query) => query
@@ -73,6 +62,9 @@ export const executeQuery = async (query) => {
                 if (value && typeof value === 'object' && value.toNumber) {
                     value = value.toNumber();
                 }
+                if (Array.isArray(value)) {
+                    value = value.filter(Boolean).join(', ') || '—';
+                }
                 obj[key] = value;
             });
             return obj;
@@ -80,30 +72,6 @@ export const executeQuery = async (query) => {
     } catch (error) {
         console.error('Query execution error:', error);
         throw new Error(`Query failed: ${error.message}`);
-    } finally {
-        await session.close();
-    }
-};
-
-// Get ALL symptoms from Neo4j (all symptoms, not just those with patient data)
-export const getSymptoms = async () => {
-    const session = driver.session();
-    try {
-        const result = await session.run(
-            `MATCH (s:Symptom) RETURN s.name as name ORDER BY s.name`
-        );
-        const symptoms = result.records.map(r => r.get('name'));
-
-        console.log('Symptoms loaded from Neo4j:', symptoms);
-
-        // Fallback symptoms if none found
-        if (symptoms.length === 0) {
-            return ['Inattention', 'Hyperactivity', 'Impulsivity', 'Daydreaming', 'Restlessness', 'Fidgeting', 'Poor concentration', 'Interrupting others', 'Difficulty waiting turn', 'Rejection Sensitivity Dysphoria'];
-        }
-        return symptoms;
-    } catch (error) {
-        console.error('Error loading symptoms:', error);
-        return ['Inattention', 'Hyperactivity', 'Impulsivity', 'Daydreaming', 'Restlessness', 'Fidgeting', 'Poor concentration', 'Interrupting others', 'Difficulty waiting turn', 'Rejection Sensitivity Dysphoria'];
     } finally {
         await session.close();
     }
@@ -119,18 +87,7 @@ export const getTreatments = async () => {
              ORDER BY t.name`
         );
         const treatments = result.records.map(r => r.get('name'));
-
-        if (treatments.length === 0) {
-            return [
-                'Medication', 'Stimulant medication', 'Non-stimulant medication',
-                'Cognitive Behavioral Therapy', 'Behavioral therapy', 'Parent training',
-                'Psychotherapy', 'School-based intervention', 'Special education support',
-                '504 Plan', 'IEP', 'Accommodations', 'Therapy', 'Mindfulness training',
-                'Social skills training', 'Teacher behavioral strategies', 'Lifestyle changes',
-                'Sleep management', 'Regular physical activity', 'Diet modification'
-            ];
-        }
-        return treatments;
+        return treatments.length ? treatments : [];
     } catch (error) {
         console.error('Error loading treatments:', error);
         return [];
@@ -149,16 +106,21 @@ export const getOutcomes = async () => {
              ORDER BY o.name`
         );
         const outcomes = result.records.map(r => r.get('name'));
+        return outcomes.length ? outcomes : [];
+    } catch (error) {
+        console.error('Error loading outcomes:', error);
+        return [];
+    } finally {
+        await session.close();
+    }
+};
 
-        if (outcomes.length === 0) {
-            return [
-                'Improved attention', 'Reduced hyperactivity', 'Better impulse control',
-                'Improved task completion', 'Better academic performance', 'Reduced anxiety',
-                'Better emotional regulation', 'Improved classroom behavior', 'Reduced disruptive behavior',
-                'Better peer relationships', 'Reduced stress levels', 'Improved social functioning'
-            ];
-        }
-        return outcomes;
+// All outcomes (used for the cascade query type, includes ones with no incoming treatment too)
+export const getAllOutcomes = async () => {
+    const session = driver.session();
+    try {
+        const result = await session.run(`MATCH (o:Outcome) RETURN o.name as name ORDER BY o.name`);
+        return result.records.map(r => r.get('name'));
     } catch (error) {
         console.error('Error loading outcomes:', error);
         return [];

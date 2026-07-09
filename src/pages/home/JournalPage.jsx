@@ -52,9 +52,10 @@ export default function JournalPage() {
             placeholder="Start writing… (your thoughts are safe here)"/>
         </div>
 
-        {/* Real data note */}
+        {/* Encouragement — no fabricated stats */}
         <div style={{background:'var(--g50)',borderRadius:14,padding:'12px 14px',marginBottom:20,fontSize:13,color:'var(--ink2)'}}>
-          📊 From our data: ADHD patients who journal daily show <strong>31% better focus outcomes</strong> over 4 weeks (n={1294} patients).
+          💡 Writing things down — even a few lines — helps ADHD brains offload thoughts that would
+          otherwise keep circling. There's no "right" way to journal here.
         </div>
 
         {/* Past entries */}

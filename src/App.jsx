@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
 import { Toast } from './components/ui';
 
 // Pages — FocusFlow flow
@@ -76,10 +75,8 @@ function AppInner() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppProvider>
-        <AppInner />
-      </AppProvider>
-    </AuthProvider>
+    <AppProvider>
+      <AppInner />
+    </AppProvider>
   );
 }

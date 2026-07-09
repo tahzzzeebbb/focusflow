@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BackHeader } from '../../components/ui';
-import { DATASET } from '../../services/adhdEngine';
 
 const INIT = [
   {from:'ai', text:"👋 Hey! I'm FocusBot — your ADHD-aware AI companion. What's going on today?"},
@@ -10,9 +9,9 @@ const INIT = [
 const AI_RESP = [
   `That's really common with ADHD — it's called **task initiation difficulty**. Your prefrontal cortex needs a 'runway' to take off. Try: open the document, set a 2-minute timer, just look at it. Your brain will naturally engage.`,
   `What you're describing sounds like **RSD (Rejection Sensitivity Dysphoria)** — affects ~99% of adults with ADHD. Your brain processes social pain more intensely. That's not a character flaw, it's neurology.`,
-  `From our ${DATASET.total.toLocaleString()} patient dataset: people with similar inattention patterns who used the Pomodoro method reported **34% better task completion**. Want to start one now?`,
+  `Try a Pomodoro: 25 minutes focused, then a 5-minute break. The structure itself helps — you don't have to rely on willpower alone. Want to start one now?`,
   `ADHD brains are **dopamine-seeking**. When a task feels boring, your brain can't produce enough dopamine to sustain attention — it's not laziness, it's neurochemistry. Background lo-fi music or body doubling can help.`,
-  `Your streak is incredible! People with ADHD need **external accountability**. You've built your own — that takes real effort. In our data, patients with 7+ day streaks showed 23% better focus scores. 🔥`,
+  `Your streak is real progress! People with ADHD often need **external structure** more than willpower alone — you've built your own by showing up daily. That's not nothing. 🔥`,
 ];
 const QUICK = ['I can\'t focus today','I\'m overwhelmed','How do I start a task?','I feel rejected'];
 

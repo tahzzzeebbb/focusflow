@@ -41,10 +41,30 @@ export const getLabTestsForSymptom = async (symptom, severity) => {
             { name: 'Barratt Impulsiveness Scale (BIS-11)', category: 'Psychological', source: 'APA', description: '30-item impulsivity assessment' },
             { name: 'Go/No-Go Task', category: 'Neuropsychological', source: 'NIMH', description: 'Response inhibition and impulse control test' },
             { name: 'Stop Signal Task', category: 'Cognitive', source: 'NIMH', description: 'Measures ability to inhibit responses' }
+        ],
+        'Daydreaming': [
+            { name: 'Sluggish Cognitive Tempo Scale', category: 'Psychological', source: 'APA', description: 'Assesses excessive mind-wandering and mental fog, distinct from classic inattention' },
+            { name: 'Continuous Performance Test (CPT-3)', category: 'Neuropsychological', source: 'NIMH', description: 'Computerized test measuring sustained attention lapses' },
+            { name: 'Mind-Wandering Questionnaire (MWQ)', category: 'Psychological', source: 'APA', description: 'Self-report measure of spontaneous vs. deliberate mind-wandering' }
+        ],
+        'Restlessness': [
+            { name: 'Actigraphy', category: 'Physical', source: 'MayoClinic', description: '7-day activity and sleep pattern monitoring — captures restlessness objectively' },
+            { name: 'Conners Comprehensive Behavior Rating Scale', category: 'Behavioral', source: 'APA', description: 'Multi-informant assessment covering hyperactive-restless behavior' },
+            { name: 'Sleep Study (Polysomnography)', category: 'Physical', source: 'MayoClinic', description: 'Rules out restless leg syndrome or sleep disorders as a contributing cause' }
+        ],
+        'RSD': [
+            { name: 'Clinical Interview for Emotional Dysregulation', category: 'Psychological', source: 'APA', description: 'Structured interview assessing rejection sensitivity and emotional reactivity' },
+            { name: 'Adult ADHD Self-Report Scale (ASRS) + Comorbidity Screen', category: 'Psychological', source: 'NIMH', description: 'Screens for ADHD alongside anxiety/mood conditions RSD often co-occurs with' },
+            { name: 'Emotion Regulation Questionnaire (ERQ)', category: 'Psychological', source: 'APA', description: 'Assesses emotional response intensity and regulation strategies' }
         ]
     };
 
-    const tests = labTests[symptom] || labTests['Inattention'];
+    const tests = labTests[symptom];
+    if (!tests) {
+        // Should not happen given the fixed symptom list, but never silently
+        // substitute a different symptom's tests without saying so.
+        return [];
+    }
     return tests.map(test => ({
         ...test,
         priority: severity >= 7 ? 'High' : severity >= 4 ? 'Medium' : 'Routine'
@@ -74,8 +94,29 @@ export const getTreatmentGuidelines = async (symptom, severity) => {
             behavioral: 'Stop-think-act technique, mindfulness training',
             lifestyle: 'Practice patience exercises, use planners, set reminders',
             monitoring: 'Follow-up in 3-4 weeks, monitor impulse control progress'
+        },
+        'Daydreaming': {
+            firstLine: 'Behavioral strategies to re-anchor attention (external cues, timers, body doubling)',
+            secondLine: 'Stimulant or non-stimulant medication if paired with significant inattention',
+            behavioral: 'Mindfulness-based attention training, structured check-ins during tasks',
+            lifestyle: 'Reduce multitasking, break tasks into short active segments',
+            monitoring: 'Follow-up in 4 weeks, distinguish from sleep deprivation or mood-related causes'
+        },
+        'Restlessness': {
+            firstLine: 'Regular vigorous physical activity, movement breaks built into the day',
+            secondLine: 'Stimulant medication if restlessness significantly impairs function',
+            behavioral: 'Fidget tools, standing/movement-friendly workspaces',
+            lifestyle: 'Consistent sleep schedule, reduce stimulants like caffeine late in the day',
+            monitoring: 'Follow-up in 2-4 weeks; rule out anxiety or sleep disorders as contributing causes'
+        },
+        'RSD': {
+            firstLine: 'Psychoeducation about RSD, Dialectical Behavior Therapy (DBT) skills',
+            secondLine: 'Alpha-agonists (guanfacine/clonidine) sometimes used off-label for emotional reactivity',
+            behavioral: 'Cognitive reframing techniques, self-compassion practice',
+            lifestyle: 'Identify and plan for known rejection triggers, build a support network',
+            monitoring: 'Follow-up in 3-4 weeks; screen for co-occurring anxiety or depression'
         }
     };
 
-    return guidelines[symptom] || guidelines['Inattention'];
+    return guidelines[symptom] ?? null;
 };

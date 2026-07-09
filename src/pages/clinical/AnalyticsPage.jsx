@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import { getSymptomDistribution, getOutcomeRates, getTreatmentOutcomeCorrelation } from '../../services/analysisService';
+import { getOutcomeRates } from '../../services/analysisService';
 import { DATASET, loadCSV } from '../../services/adhdEngine';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import './Clinical.css';
@@ -23,7 +23,6 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function AnalyticsPage() {
   const navigate = useNavigate();
   const { score, assessment } = useApp();
-  const [symptoms, setSymptoms]     = useState([]);
   const [outcomes, setOutcomes]     = useState([]);
   const [csvStats, setCsvStats]     = useState(null);
   const [loading, setLoading]       = useState(true);
@@ -33,12 +32,8 @@ export default function AnalyticsPage() {
     (async () => {
       setLoading(true);
       try {
-        // Load Neo4j data
-        const [sym, out] = await Promise.all([
-          getSymptomDistribution(),
-          getOutcomeRates(),
-        ]);
-        setSymptoms(sym);
+        // Load real graph data (outcome rates only — symptom stats come from CSV below)
+        const out = await getOutcomeRates();
         setOutcomes(out);
 
         // Load real CSV stats
@@ -210,21 +205,21 @@ export default function AnalyticsPage() {
                   ))}
                 </div>
 
-                {/* Neo4j outcome rates */}
+                {/* Real graph data: how many treatments target each outcome */}
                 {outcomes.length > 0 && (
                   <div style={{background:'var(--surf)',border:'1px solid var(--border)',borderRadius:18,padding:20}}>
-                    <div style={{fontSize:15,fontWeight:800,marginBottom:4}}>Treatment Outcome Rates</div>
-                    <div style={{fontSize:12,color:'var(--ink3)',marginBottom:16}}>From Neo4j AuraDB · Treatment effectiveness weights</div>
+                    <div style={{fontSize:15,fontWeight:800,marginBottom:4}}>Treatments per Outcome</div>
+                    <div style={{fontSize:12,color:'var(--ink3)',marginBottom:16}}>How many documented treatments target each outcome — from Neo4j</div>
                     <ResponsiveContainer width="100%" height={200}>
                       <BarChart data={outcomes.slice(0,6)} margin={{top:5,right:0,bottom:20,left:-15}}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false}/>
                         <XAxis dataKey="outcome" tick={{fontSize:9,fill:'var(--ink3)'}} angle={-30} textAnchor="end" interval={0}/>
-                        <YAxis tick={{fontSize:10,fill:'var(--ink3)'}} tickFormatter={v=>`${v}%`}/>
+                        <YAxis tick={{fontSize:10,fill:'var(--ink3)'}} allowDecimals={false}/>
                         <Tooltip content={<CustomTooltip/>}/>
-                        <Bar dataKey="effectiveness" name="Effectiveness %" fill="var(--g500)" radius={[4,4,0,0]}/>
+                        <Bar dataKey="treatmentCount" name="Treatments" fill="var(--g500)" radius={[4,4,0,0]}/>
                       </BarChart>
                     </ResponsiveContainer>
-                    <div style={{fontSize:11,color:'var(--ink3)',textAlign:'center',marginTop:8}}>Source: Neo4j AuraDB graph · IMPROVES relationship weights × 100</div>
+                    <div style={{fontSize:11,color:'var(--ink3)',textAlign:'center',marginTop:8}}>Source: Neo4j AuraDB · IMPROVES relationships, from NIMH/CDC/MayoClinic/APA</div>
                   </div>
                 )}
               </div>
@@ -233,26 +228,30 @@ export default function AnalyticsPage() {
             {/* ── SYMPTOMS TAB ── */}
             {activeTab==='symptoms' && (
               <div style={{padding:'0 20px',marginTop:20,display:'flex',flexDirection:'column',gap:16}}>
-                {symptoms.length > 0 && (
+                {/* CSV symptom insight — the only source of symptom-level data */}
+                {csvStats && (
                   <div style={{background:'var(--surf)',border:'1px solid var(--border)',borderRadius:18,padding:20}}>
                     <div style={{fontSize:15,fontWeight:800,marginBottom:4}}>Average Symptom Severity</div>
-                    <div style={{fontSize:12,color:'var(--ink3)',marginBottom:16}}>From Neo4j Patient nodes</div>
-                    {symptoms.map((s,i)=>(
-                      <div key={i} style={{marginBottom:16}}>
+                    <div style={{fontSize:12,color:'var(--ink3)',marginBottom:16}}>From ADHD.csv · {csvStats.total.toLocaleString()} patients</div>
+                    {[
+                      {label:'Inattention',   val:parseFloat(csvStats.adhd.inn),   color:COLORS[0]},
+                      {label:'Hyperactivity', val:parseFloat(csvStats.adhd.hyp),   color:COLORS[1]},
+                      {label:'Impulsivity',   val:parseFloat(csvStats.adhd.imp),   color:COLORS[2]},
+                    ].map((s,i)=>(
+                      <div key={s.label} style={{marginBottom:16}}>
                         <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
-                          <span style={{fontSize:14,fontWeight:700}}>{s.symptom}</span>
-                          <span style={{fontFamily:'var(--font-mono,monospace)',fontSize:14,fontWeight:900,color:COLORS[i]}}>{s.avgSeverity}/9</span>
+                          <span style={{fontSize:14,fontWeight:700}}>{s.label}</span>
+                          <span style={{fontFamily:'var(--font-mono,monospace)',fontSize:14,fontWeight:900,color:s.color}}>{s.val.toFixed(2)}/9</span>
                         </div>
                         <div style={{height:10,background:'var(--surf2)',borderRadius:99,overflow:'hidden'}}>
-                          <div style={{height:'100%',width:`${(parseFloat(s.avgSeverity)/9)*100}%`,background:COLORS[i],borderRadius:99,transition:'width 1s'}}/>
+                          <div style={{height:'100%',width:`${(s.val/9)*100}%`,background:s.color,borderRadius:99,transition:'width 1s'}}/>
                         </div>
-                        <div style={{fontSize:11,color:'var(--ink3)',marginTop:4}}>Across {s.patientCount?.toLocaleString()} patients</div>
+                        <div style={{fontSize:11,color:'var(--ink3)',marginTop:4}}>Among {csvStats.adhdCount.toLocaleString()} ADHD-diagnosed patients</div>
                       </div>
                     ))}
                   </div>
                 )}
 
-                {/* CSV symptom insight */}
                 {csvStats && (
                   <div style={{background:'var(--p50)',border:'1px solid var(--p100)',borderRadius:18,padding:20}}>
                     <div style={{fontSize:15,fontWeight:800,color:'var(--p600)',marginBottom:12}}>📊 From ADHD.csv (2,000 patients)</div>

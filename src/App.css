@@ -85,17 +85,16 @@ body {
 
 .px { padding-left:20px; padding-right:20px; max-width: 100%; }
 
-/* ── HORIZONTAL SCROLL ROWS (pills, chips) — contained, no page overflow ── */
+/* ── CHIP ROWS (option selectors) — wrap instead of horizontal-scroll.
+   Horizontal scroll needs touch/trackpad drag which doesn't work with a
+   mouse, and hiding options off-screen is bad for ADHD users anyway —
+   everything should be visible without a "discover the scroll" step. ── */
 .scroll-row {
   display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  overflow-y: hidden;
+  flex-wrap: wrap;
+  gap: 8px;
   padding: 2px 20px 8px;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
 }
-.scroll-row::-webkit-scrollbar { display: none; }
 
 /* ── GRIDS: never allow horizontal overflow ── */
 .chart-col { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:5px; }

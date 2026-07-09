@@ -13,7 +13,7 @@ const MOODS = [
 
 export default function MoodPage() {
   const navigate = useNavigate();
-  const { setMood, showToast, setXp } = useApp();
+  const { setMood, showToast, logCheckIn } = useApp();
   const [mood, setLocalMood]   = useState(null);
   const [energy, setEnergy]    = useState(6);
   const [note, setNote]        = useState('');
@@ -21,7 +21,7 @@ export default function MoodPage() {
 
   const save = () => {
     if (!mood) { showToast('😊 Pick a mood first'); return; }
-    setMood(mood); setXp(x=>x+5);
+    setMood(mood); logCheckIn();
     showToast('😊 Check-in saved! +5 XP');
     navigate('/home');
   };
@@ -92,11 +92,11 @@ export default function MoodPage() {
             placeholder="Just for you — no judgment here…"/>
         </div>
 
-        {/* Data insight */}
+        {/* Encouragement — no fabricated stats */}
         <div style={{background:'var(--p50)',border:'1px solid var(--p100)',borderRadius:14,padding:'14px 16px',marginBottom:24}}>
           <p style={{fontSize:13,color:'var(--ink2)',lineHeight:1.55}}>
-            📊 From our 2,000 patient dataset: ADHD patients who track mood daily show
-            <strong> 31% better focus outcomes</strong> over 4 weeks. Consistency matters more than any single day.
+            💡 Tracking your mood daily — even briefly — helps you and your care team spot patterns
+            over time that are easy to miss day-to-day.
           </p>
         </div>
 

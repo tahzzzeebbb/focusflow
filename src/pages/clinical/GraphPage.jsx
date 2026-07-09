@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import ADHDGraph from '../../components/ADHDGraph';
 import { getTreatmentOutcomeData } from '../../services/neo4j';
-import { DATASET } from '../../services/adhdEngine';
 import './Clinical.css';
 
 export default function GraphPage() {
@@ -103,7 +102,7 @@ export default function GraphPage() {
         {/* How it works */}
         <div className="clin-info-card">
           <h3>How this graph works</h3>
-          <p>Each <strong style={{color:'var(--node-treatment)'}}>Treatment</strong> node connects to <strong style={{color:'var(--node-outcome)'}}>Outcome</strong> nodes via IMPROVES relationships. Edge weights represent effectiveness percentages calibrated from clinical literature and our {DATASET.total.toLocaleString()}-patient dataset.</p>
+          <p>Each <strong style={{color:'var(--node-treatment)'}}>Treatment</strong> node connects to <strong style={{color:'var(--node-outcome)'}}>Outcome</strong> nodes via IMPROVES relationships, sourced from NIMH, CDC, APA, and Mayo Clinic guidelines — not from the patient survey data used in your assessment.</p>
           <div className="clin-info-grid">
             <div>
               <div style={{fontWeight:700,color:'var(--p500)',marginBottom:4}}>Stimulant medication</div>

@@ -23,7 +23,7 @@ export default function HomePage() {
           <div>
             <p style={{fontSize:13,color:'var(--ink3)',fontWeight:500}}>Good morning 👋</p>
             <h1 style={{fontSize:26,fontWeight:900,color:'var(--ink)',letterSpacing:'-.4px'}}>
-              {user?.name || 'Alex'}
+              {user?.name}
             </h1>
           </div>
           <button className="home-notif" onClick={() => showToast('🔔 No new notifications')}>

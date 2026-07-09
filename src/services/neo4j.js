@@ -32,12 +32,17 @@ export const testConnection = async () => {
 export const getTreatmentOutcomeData = async () => {
     const session = driver.session();
     try {
+        // Real graph: Treatment -[:IMPROVES]-> Outcome, and
+        // Outcome -[:LEADS_TO]-> Outcome (cascading effects).
+        // No numeric weight exists on these relationships — they are
+        // qualitative, citation-based facts, not measured effect sizes.
         const result = await session.run(
-            `MATCH (t:Treatment)-[r:IMPROVES]->(o:Outcome)
-             RETURN t.name as source, o.name as target, 
-                    'Treatment' as sourceType, 'Outcome' as targetType,
-                    r.weight as weight
-             LIMIT 35`
+            `MATCH (a)-[r:IMPROVES|LEADS_TO]->(b)
+             RETURN a.name as source, b.name as target,
+                    labels(a)[0] as sourceType, labels(b)[0] as targetType,
+                    a.source as sourceCitation, b.source as targetCitation,
+                    type(r) as relType
+             LIMIT 60`
         );
 
         const nodes = [];
@@ -49,13 +54,15 @@ export const getTreatmentOutcomeData = async () => {
             const target = record.get('target');
             const sourceType = record.get('sourceType');
             const targetType = record.get('targetType');
+            const relType = record.get('relType');
 
             if (!nodeSet.has(source)) {
                 nodes.push({
                     data: {
                         id: source,
-                        name: source,      // ← name field for label
-                        type: sourceType.toLowerCase()
+                        name: source,
+                        type: sourceType.toLowerCase(),
+                        citation: record.get('sourceCitation'),
                     }
                 });
                 nodeSet.add(source);
@@ -64,14 +71,15 @@ export const getTreatmentOutcomeData = async () => {
                 nodes.push({
                     data: {
                         id: target,
-                        name: target,      // ← name field for label
-                        type: targetType.toLowerCase()
+                        name: target,
+                        type: targetType.toLowerCase(),
+                        citation: record.get('targetCitation'),
                     }
                 });
                 nodeSet.add(target);
             }
 
-            edges.push({ data: { source, target } });
+            edges.push({ data: { source, target, relType } });
         });
 
         console.log('Graph data loaded:', nodes.length, 'nodes,', edges.length, 'edges');
