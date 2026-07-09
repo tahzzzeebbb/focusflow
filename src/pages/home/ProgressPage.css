@@ -1,0 +1,43 @@
+.prog-top {
+  padding: 52px 20px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.prog-title { font-size: 26px; font-weight: 900; color: var(--ink); letter-spacing: -.4px; }
+
+.prog-kpis {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 10px;
+  padding: 0 20px; margin-bottom: 14px;
+}
+.prog-kpi {
+  background: var(--surf); border: 1px solid var(--border); border-radius: 16px;
+  padding: 14px 8px; text-align: center;
+}
+.prog-kpi__icon { font-size: 22px; }
+.prog-kpi__val { font-size: 18px; font-weight: 900; line-height: 1.2; margin-top: 2px; }
+.prog-kpi__label {
+  font-size: 10px; color: var(--ink3); text-transform: uppercase;
+  letter-spacing: .4px; margin-top: 2px;
+}
+
+.prog-empty-note {
+  margin: 0 20px 20px; background: var(--p50); border: 1px solid var(--p100);
+  border-radius: 14px; padding: 12px 14px; font-size: 12.5px; color: var(--ink2); line-height: 1.5;
+}
+
+.prog-card { margin: 0 20px 16px; }
+.prog-card__footnote {
+  font-size: 11.5px; color: var(--ink3); margin-top: 10px;
+  padding-top: 10px; border-top: 1px dashed var(--border); line-height: 1.4;
+}
+
+.prog-score-card {
+  margin: 0 20px 16px; border-radius: 20px; padding: 20px;
+  display: flex; align-items: center; gap: 16px; cursor: pointer;
+}
+
+.prog-encourage {
+  margin: 0 20px 24px; background: var(--p50); border: 1px solid var(--p100);
+  border-radius: 18px; padding: 18px;
+}
+.prog-encourage__title { font-size: 15px; font-weight: 800; color: var(--p600); margin-bottom: 8px; }
+.prog-encourage p { font-size: 13px; color: var(--ink2); line-height: 1.6; }

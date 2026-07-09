@@ -1,13 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../../context/AppContext';
 import ADHDGraph from '../../components/ADHDGraph';
 import { getTreatmentOutcomeData } from '../../services/neo4j';
 import './Clinical.css';
 
 export default function GraphPage() {
   const navigate = useNavigate();
-  const { showToast } = useApp();
   const [graphData, setGraphData]   = useState({ nodes:[], edges:[] });
   const [graphError, setGraphError] = useState(null);
   const [loading, setLoading]       = useState(true);
@@ -24,32 +22,41 @@ export default function GraphPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Real counts computed from whatever Neo4j actually returns —
+  // never hardcoded, so this can't drift out of sync with the seed data again.
+  const stats = useMemo(() => {
+    const treatments = graphData.nodes.filter(n => n.data.type === 'treatment').length;
+    const outcomes    = graphData.nodes.filter(n => n.data.type === 'outcome').length;
+    const improves     = graphData.edges.filter(e => e.data.relType === 'IMPROVES').length;
+    const leadsTo       = graphData.edges.filter(e => e.data.relType === 'LEADS_TO').length;
+    return { treatments, outcomes, improves, leadsTo };
+  }, [graphData]);
+
   return (
     <div className="screen">
-      {/* Header */}
       <div className="clin-header sticky-header">
         <button className="clin-back" onClick={() => navigate('/home')}>←</button>
         <div>
           <div className="clin-title">Treatment → Outcome Graph</div>
-          <div className="clin-subtitle">Neo4j AuraDB · Real relationship data</div>
+          <div className="clin-subtitle">Neo4j AuraDB · NIMH, CDC, MayoClinic, APA</div>
         </div>
         <div className={`clin-dot ${connected ? 'green' : 'red'}`} />
       </div>
 
-      {/* Real data banner */}
       <div className="real-data-banner">
-        <span>📊</span>
-        <span>Predicted from <strong>2,000 real patients</strong> · Treatments → Outcomes from clinical literature</span>
+        <span>🕸️</span>
+        <span>This is a <strong>separate dataset</strong> from your assessment — documented treatment-outcome
+        relationships from clinical guidelines, not the 2,000-patient survey.</span>
       </div>
 
       <div className="screen__scroll">
-        {/* Stats row */}
+        {/* Stats row — computed live from the actual loaded graph, never hardcoded */}
         <div className="clin-stats-row">
           {[
-            { n: '12', label: 'Treatments', color: 'var(--p500)' },
-            { n: '12', label: 'Outcomes',   color: 'var(--g500)' },
-            { n: '10', label: 'Symptoms',   color: 'var(--o500)' },
-            { n: '8',  label: 'Patients',   color: 'var(--b500, #4A90D9)' },
+            { n: loading ? '—' : stats.treatments, label: 'Treatments', color: 'var(--p500)' },
+            { n: loading ? '—' : stats.outcomes,   label: 'Outcomes',   color: 'var(--g500)' },
+            { n: loading ? '—' : stats.improves,   label: 'Improves',   color: 'var(--o500)' },
+            { n: loading ? '—' : stats.leadsTo,    label: 'Leads to',   color: 'var(--b500,#4A90D9)' },
           ].map(s => (
             <div key={s.label} className="clin-stat">
               <div style={{ fontSize:22, fontWeight:900, color:s.color }}>{s.n}</div>
@@ -58,15 +65,12 @@ export default function GraphPage() {
           ))}
         </div>
 
-        {/* Legend */}
+        {/* Legend — only the node types that actually exist in this graph */}
         <div className="clin-legend">
           <span><i style={{background:'var(--node-treatment)'}} /> Treatment</span>
           <span><i style={{background:'var(--node-outcome)'}} /> Outcome</span>
-          <span><i style={{background:'var(--node-symptom)'}} /> Symptom</span>
-          <span><i style={{background:'var(--node-patient)'}} /> Patient</span>
         </div>
 
-        {/* Graph */}
         {loading ? (
           <div className="clin-loading">
             <div className="clin-spinner" />
@@ -102,23 +106,23 @@ export default function GraphPage() {
         {/* How it works */}
         <div className="clin-info-card">
           <h3>How this graph works</h3>
-          <p>Each <strong style={{color:'var(--node-treatment)'}}>Treatment</strong> node connects to <strong style={{color:'var(--node-outcome)'}}>Outcome</strong> nodes via IMPROVES relationships, sourced from NIMH, CDC, APA, and Mayo Clinic guidelines — not from the patient survey data used in your assessment.</p>
-          <div className="clin-info-grid">
-            <div>
-              <div style={{fontWeight:700,color:'var(--p500)',marginBottom:4}}>Stimulant medication</div>
-              <div style={{fontSize:12,color:'var(--ink3)'}}>70% response rate · Strongest evidence</div>
-            </div>
-            <div>
-              <div style={{fontWeight:700,color:'var(--g500)',marginBottom:4}}>CBT + Stimulant</div>
-              <div style={{fontSize:12,color:'var(--ink3)'}}>82% combined effectiveness</div>
-            </div>
+          <p>
+            Each <strong style={{color:'var(--node-treatment)'}}>Treatment</strong> node connects to
+            a <strong style={{color:'var(--node-outcome)'}}>Outcome</strong> node it's documented to
+            improve. Some outcomes also connect to each other — e.g. improved attention tends to lead
+            to better task completion, which tends to lead to better academic performance.
+          </p>
+          <div style={{marginTop:14,display:'flex',gap:8,flexWrap:'wrap'}}>
+            <span className="ui-badge ui-badge--purple">NIMH</span>
+            <span className="ui-badge ui-badge--green">CDC</span>
+            <span className="ui-badge ui-badge--orange">MayoClinic</span>
+            <span className="ui-badge ui-badge--dark">APA</span>
           </div>
         </div>
 
         <div style={{ height:24 }} />
       </div>
 
-      {/* Bottom nav */}
       <div className="clin-bottom-tabs sticky-footer" style={{padding:'12px 20px 34px'}}>
         {[
           { path:'/graph',     label:'Graph',     icon:'🕸️', active:true },

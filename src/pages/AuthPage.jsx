@@ -50,7 +50,10 @@ export default function AuthPage() {
     <div className="screen">
       <div className="screen__scroll">
       <div className="auth__hero">
-        <div className="auth__logo">🧠 FocusFlow</div>
+        <div className="auth__hero-top">
+          <div className="auth__logo">🧠 FocusFlow</div>
+          <span className="auth__demo-badge">Demo</span>
+        </div>
         <h1 className="auth__hero-title">
           {mode === 'signup' ? 'Start your\nADHD journey' : 'Welcome\nback!'}
         </h1>
