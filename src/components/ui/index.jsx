@@ -79,7 +79,7 @@ export const Toast = ({ message, visible }) => (
   <div className={`ui-toast ${visible ? 'ui-toast--show' : ''}`}>{message}</div>
 );
 
-export const ScoreRing = ({ score, size = 160, light = false, sublabel = 'Focus Score' }) => {
+export const ScoreRing = ({ score, size = 160, light = false, sublabel = 'ADHD Score' }) => {
   const r = (size / 2) - 12;
   const circ = 2 * Math.PI * r;
   const offset = circ * (1 - score / 100);
