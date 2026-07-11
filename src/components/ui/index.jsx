@@ -79,16 +79,17 @@ export const Toast = ({ message, visible }) => (
   <div className={`ui-toast ${visible ? 'ui-toast--show' : ''}`}>{message}</div>
 );
 
-export const ScoreRing = ({ score, size = 160 }) => {
+export const ScoreRing = ({ score, size = 160, light = false, sublabel = 'Focus Score' }) => {
   const r = (size / 2) - 12;
   const circ = 2 * Math.PI * r;
   const offset = circ * (1 - score / 100);
-  const color = score >= 70 ? '#FF5C5C' : score >= 60 ? '#FF8C00' : score >= 45 ? '#6C5CE7' : '#00B37D';
+  const color = light ? '#FFFFFF' : (score >= 70 ? '#FF5C5C' : score >= 60 ? '#FF8C00' : score >= 45 ? '#6C5CE7' : '#00B37D');
+  const trackColor = light ? 'rgba(255,255,255,.25)' : 'var(--surf3)';
 
   return (
     <div className="ui-ring" style={{ width: size, height: size }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--surf3)" strokeWidth="10" />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={trackColor} strokeWidth="10" />
         <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="10"
           strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
           transform={`rotate(-90 ${size/2} ${size/2})`}
@@ -96,7 +97,7 @@ export const ScoreRing = ({ score, size = 160 }) => {
       </svg>
       <div className="ui-ring__label">
         <span className="ui-ring__score" style={{ color }}>{score}%</span>
-        <span className="ui-ring__sub">ADHD Risk</span>
+        <span className="ui-ring__sub" style={light ? { color:'rgba(255,255,255,.75)' } : undefined}>{sublabel}</span>
       </div>
     </div>
   );

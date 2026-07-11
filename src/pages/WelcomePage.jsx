@@ -7,7 +7,7 @@ const SLIDES = [
   {
     emoji: '🎯',
     title: 'Your brain works\ndifferently.',
-    body: 'FocusFlow looks at real patterns from thousands of people with ADHD — not a generic quiz — to give you an honest answer.',
+    body: 'A few quick questions, and you\'ll get a clear picture of your focus patterns — powered by AI.',
     color: '#6C5CE7',
     light: '#F0EEFF',
     btn: 'Next',

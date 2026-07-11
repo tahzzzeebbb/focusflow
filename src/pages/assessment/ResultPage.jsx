@@ -2,39 +2,45 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { Btn, ScoreRing } from '../../components/ui';
-import {
-  getRiskLevel, getADHDType, getBreakdown, DATASET,
-  findSimilarPatients, getAcademicImpact, getAgeGroupStats,
-  predictedAcademic
-} from '../../services/adhdEngine';
+import { getRiskLevel, getADHDType } from '../../services/adhdEngine';
 import './ResultPage.css';
 
-function plainMeaning(score, type) {
-  if (score >= 80) return `Your answers strongly line up with patterns commonly seen in ADHD, mostly around ${type.desc.toLowerCase()}. It's worth talking to a doctor about this.`;
-  if (score >= 70) return `Your answers line up with several common ADHD patterns, mostly around ${type.desc.toLowerCase()}. A conversation with a doctor could help.`;
-  if (score >= 60) return `Your answers show some patterns often seen in ADHD, particularly ${type.desc.toLowerCase()}. Worth keeping an eye on.`;
-  if (score >= 45) return `Your answers show a few ADHD-related patterns, but nothing very strong either way. Everyone has some of these traits sometimes.`;
-  return `Your answers don't show strong ADHD patterns right now. That's good news — keep an eye on things over time if anything changes.`;
+// Plain-language takeaway — no methodology, no numbers, no citations.
+// This is the ONLY thing most people need to read.
+function takeaway(scoreLevel, type) {
+  const focus = type.desc.toLowerCase();
+  if (scoreLevel === 'high')     return `Your answers point strongly toward ADHD patterns, mostly around ${focus}. It's worth talking to a doctor about this.`;
+  if (scoreLevel === 'moderate') return `Your answers show some patterns often linked to ADHD, especially ${focus}. Worth keeping an eye on.`;
+  return `Your answers don't show strong ADHD patterns right now. That's good — you can always check again later if things change.`;
+}
+
+function recommendations(scoreLevel) {
+  if (scoreLevel === 'high') return [
+    { icon:'👨‍⚕️', title:'Talk to a professional', sub:'A doctor or therapist can give you a proper diagnosis' },
+    { icon:'⏱️', title:'Try short focus sessions', sub:'25-minute blocks with breaks in between' },
+    { icon:'😴', title:'Protect your sleep', sub:'Poor sleep tends to make focus harder' },
+  ];
+  if (scoreLevel === 'moderate') return [
+    { icon:'⏱️', title:'Try short focus sessions', sub:'25-minute blocks with breaks in between' },
+    { icon:'📓', title:'Track your patterns', sub:'A quick daily check-in helps spot trends' },
+    { icon:'👨‍⚕️', title:'Consider a professional opinion', sub:'Especially if this is affecting daily life' },
+  ];
+  return [
+    { icon:'📓', title:'Keep checking in', sub:'A quick daily mood log helps you notice changes' },
+    { icon:'⏱️', title:'Use focus sessions when needed', sub:'Helpful for anyone, ADHD or not' },
+  ];
 }
 
 export default function ResultPage() {
   const navigate = useNavigate();
   const { score, assessment } = useApp();
-  const [animScore, setAnimScore]       = useState(0);
-  const [showDetails, setShowDetails]   = useState(false);
-  const [similar, setSimilar]           = useState(null);
-  const [academicData, setAcademicData] = useState(null);
-  const [ageStats, setAgeStats]         = useState(null);
-  const [detailsLoading, setDetailsLoading] = useState(true);
+  const [animScore, setAnimScore] = useState(0);
 
   const s    = score ?? 65;
   const risk = getRiskLevel(s);
   const type = getADHDType(assessment?.inattention ?? 4, assessment?.hyperactivity ?? 4);
-  const bd   = getBreakdown(assessment ?? {});
-
-  const inn = assessment?.inattention  ?? 4;
-  const hyp = assessment?.hyperactivity ?? 4;
-  const imp = assessment?.impulsivity   ?? 4;
+  const scoreLevel = s >= 70 ? 'high' : s >= 45 ? 'moderate' : 'low';
+  const recs = recommendations(scoreLevel);
 
   useEffect(() => {
     let n = 0;
@@ -45,167 +51,53 @@ export default function ResultPage() {
     return () => clearInterval(t);
   }, [s]);
 
-  // Load the detailed stats quietly in the background — the user only
-  // sees them if they choose to expand "See the details" below.
-  useEffect(() => {
-    (async () => {
-      try {
-        const [sim, acad, age] = await Promise.all([
-          findSimilarPatients(inn, hyp, imp),
-          getAcademicImpact(inn, hyp, imp),
-          getAgeGroupStats(assessment?.educationStage ?? 'Adult'),
-        ]);
-        setSimilar(sim);
-        setAcademicData(acad);
-        setAgeStats(age);
-      } catch (e) {
-        console.error('CSV load error:', e);
-      } finally {
-        setDetailsLoading(false);
-      }
-    })();
-  }, [inn, hyp, imp]);
-
-  const compareRows = [
-    { label:'Inattention',      you: inn, adhd: parseFloat(DATASET.adhd.inn), non: parseFloat(DATASET.nonAdhd.inn), max: 9, suffix:'/9' },
-    { label:'Hyperactivity',    you: hyp, adhd: parseFloat(DATASET.adhd.hyp), non: parseFloat(DATASET.nonAdhd.hyp), max: 9, suffix:'/9' },
-    { label:'Impulsivity',      you: imp, adhd: parseFloat(DATASET.adhd.imp), non: parseFloat(DATASET.nonAdhd.imp), max: 9, suffix:'/9' },
-  ];
-
   return (
     <div className="screen">
       <div className="screen__scroll">
 
-        {/* ── SIMPLE HERO — the only thing most people need to see ── */}
-        <div className="result-hero" style={{ background: risk.gradient }}>
-          <div className="result-hero__top">
-            <span>Your Result</span>
-          </div>
-          <ScoreRing score={animScore} size={168} />
-          <h2 className="result-hero__level">{risk.emoji} {risk.label}</h2>
-          <div className="result-hero__type">
-            <span className="result-hero__type-name">{type.type}</span>
-          </div>
+        {/* ── SCORE HERO ── */}
+        <div className="res-hero">
+          <p className="res-hero__eyebrow">Your Result</p>
+          <ScoreRing score={animScore} size={172} light />
+          <h2 className="res-hero__level">{risk.label}</h2>
+          <p className="res-hero__type">{type.type}</p>
         </div>
 
-        <div className="result-body">
+        <div className="res-body">
 
-          {/* ── PLAIN-LANGUAGE MEANING — the main content ── */}
-          <section className="r-card">
-            <h3 className="r-card__title" style={{marginBottom:10}}>What this means</h3>
-            <p className="result-plain-text">{plainMeaning(s, type)}</p>
+          {/* ── AI INSIGHT — plain language, no methodology ── */}
+          <section className="res-card">
+            <p className="res-card__label">AI Insight</p>
+            <p className="res-insight-text">{takeaway(scoreLevel, type)}</p>
           </section>
 
-          {/* ── SIMPLE NEXT STEP ── */}
-          {s >= 60 && (
-            <section className="r-card r-card--tinted">
-              <div style={{display:'flex',gap:12,alignItems:'flex-start'}}>
-                <span style={{fontSize:24}}>👨‍⚕️</span>
-                <p style={{fontSize:13.5,color:'var(--ink2)',lineHeight:1.6}}>
-                  Since your result is on the higher side, it's a good idea to talk to a doctor
-                  or therapist about it. They can give you a proper diagnosis and talk through options.
-                </p>
-              </div>
-            </section>
-          )}
-
-          {/* ── SEE THE DETAILS — everything else, collapsed by default ── */}
-          <button className="r-details-toggle" onClick={() => setShowDetails(v => !v)}>
-            <span>{showDetails ? 'Hide' : 'See'} how we worked this out</span>
-            <span className={`r-details-toggle__arrow ${showDetails ? 'open' : ''}`}>⌄</span>
-          </button>
-
-          {showDetails && (
-            <div className="r-details">
-              {/* Score breakdown */}
-              <section className="r-card">
-                <h3 className="r-card__title" style={{marginBottom:4}}>Your answers, broken down</h3>
-                <p className="r-card__sub" style={{marginBottom:14}}>How much each part of the quiz mattered</p>
-                {bd.map(b => (
-                  <div key={b.label} className="r-breakdown-row">
-                    <div className="r-breakdown-row__top">
-                      <span className="r-breakdown-row__label">{b.label}</span>
-                      <span className="r-breakdown-row__weight">{b.raw}/9</span>
-                    </div>
-                    <div className="r-track"><div className="r-fill" style={{ width:`${b.score}%`, background:b.color }} /></div>
+          {/* ── RECOMMENDATIONS ── */}
+          <section>
+            <p className="res-section-label">Recommendations</p>
+            <div className="res-rec-list">
+              {recs.map(r => (
+                <div key={r.title} className="res-rec-card">
+                  <span className="res-rec-card__icon">{r.icon}</span>
+                  <div>
+                    <div className="res-rec-card__title">{r.title}</div>
+                    <div className="res-rec-card__sub">{r.sub}</div>
                   </div>
-                ))}
-              </section>
-
-              {/* Similar people */}
-              {!detailsLoading && similar?.count > 0 && (
-                <section className="r-card">
-                  <h3 className="r-card__title" style={{marginBottom:4}}>People who answered similarly</h3>
-                  <p className="r-card__sub" style={{marginBottom:14}}>Based on a group of {similar.count.toLocaleString()} people with answers like yours</p>
-                  <div className="r-stat-hero" style={{background:risk.bg}}>
-                    <div className="r-stat-hero__num" style={{color:risk.color}}>{similar.rate}%</div>
-                    <div className="r-stat-hero__label">were later diagnosed with ADHD</div>
-                  </div>
-                  {similar.confidence === 'low' && (
-                    <p className="r-small-note">This is based on a smaller group, so treat it as a rough estimate.</p>
-                  )}
-                </section>
-              )}
-
-              {/* Academic impact */}
-              {!detailsLoading && academicData && academicData.confidence !== 'low' && (
-                <section className="r-card">
-                  <h3 className="r-card__title" style={{marginBottom:4}}>School & work impact</h3>
-                  <p className="r-card__sub" style={{marginBottom:14}}>How people with similar answers tend to do</p>
-                  <div className="r-split">
-                    <div className="r-split__cell" style={{background:'var(--r50)'}}>
-                      <div className="r-split__num" style={{color:'var(--r500)'}}>{academicData.yourGroupAvg}</div>
-                      <div className="r-split__label">People like you</div>
-                    </div>
-                    <div className="r-split__cell" style={{background:'var(--g50)'}}>
-                      <div className="r-split__num" style={{color:'var(--g500)'}}>{academicData.populationAvg}</div>
-                      <div className="r-split__label">Everyone else</div>
-                    </div>
-                  </div>
-                </section>
-              )}
-
-              {/* Comparison */}
-              <section className="r-card">
-                <h3 className="r-card__title" style={{marginBottom:14}}>How your answers compare</h3>
-                <div className="r-legend">
-                  <span><i style={{background:'var(--p500)'}} /> You</span>
-                  <span><i style={{background:'var(--r400,#FF8F8F)'}} /> ADHD group</span>
-                  <span><i style={{background:'var(--g400,#7FE0BB)'}} /> Non-ADHD group</span>
                 </div>
-                {compareRows.map(r => (
-                  <div key={r.label} className="r-cmp-group">
-                    <div className="r-cmp-group__label">{r.label}</div>
-                    {[
-                      { key:'you',  val:r.you,  color:'var(--p500)' },
-                      { key:'adhd', val:r.adhd, color:'var(--r400,#FF8F8F)' },
-                      { key:'non',  val:r.non,  color:'var(--g400,#7FE0BB)' },
-                    ].map(row => (
-                      <div key={row.key} className="r-cmp-group__row">
-                        <div className="r-track r-track--sm">
-                          <div className="r-fill" style={{ width:`${Math.min((row.val/r.max)*100,100)}%`, background:row.color }} />
-                        </div>
-                        <span className="r-cmp-group__val">{row.val}{r.suffix}</span>
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </section>
+              ))}
             </div>
-          )}
+          </section>
 
-          {/* ── DISCLAIMER ── */}
-          <div className="r-disclaimer">
-            <p><strong>⚠️ Important:</strong> This isn't a medical diagnosis — it's a screening tool
-            to help you decide if it's worth talking to a professional. If your score was ≥65%,
-            we'd recommend a chat with a doctor or therapist.</p>
+          {/* ── DISCLAIMER — short, plain, no jargon ── */}
+          <div className="res-disclaimer">
+            This is a screening tool, not a medical diagnosis. If you're concerned, please
+            talk to a doctor or therapist.
           </div>
         </div>
       </div>
 
-      <div className="r-footer">
-        <Btn onClick={() => navigate('/home')}>Build My Focus Plan 🚀</Btn>
-        <button onClick={() => navigate('/q1')} className="r-footer__retake">Retake Assessment</button>
+      <div className="res-footer">
+        <Btn onClick={() => navigate('/home')}>Continue to My Plan</Btn>
+        <button onClick={() => navigate('/q1')} className="res-footer__retake">Retake Assessment</button>
       </div>
     </div>
   );

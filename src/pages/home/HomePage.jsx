@@ -51,19 +51,9 @@ export default function HomePage() {
           <div className="home-hero home-hero--empty" onClick={() => navigate('/q1')}>
             <div>
               <p style={{fontSize:15,fontWeight:800,color:'var(--p500)'}}>Take your ADHD Assessment →</p>
-              <p style={{fontSize:13,color:'var(--ink3)',marginTop:4}}>Real score from 2,000 patient dataset</p>
+              <p style={{fontSize:13,color:'var(--ink3)',marginTop:4}}>Takes about 3 minutes</p>
             </div>
             <span style={{fontSize:40}}>🎯</span>
-          </div>
-        )}
-
-        {/* ── DATA NOTE — kept short and plain ── */}
-        {score && (
-          <div style={{margin:'0 20px 16px',background:'var(--surf2)',borderRadius:12,padding:'10px 14px',display:'flex',gap:8,alignItems:'center'}}>
-            <span style={{fontSize:16}}>📊</span>
-            <span style={{fontSize:12,color:'var(--ink2)',lineHeight:1.4}}>
-              Based on real patterns seen in thousands of people with ADHD
-            </span>
           </div>
         )}
 
