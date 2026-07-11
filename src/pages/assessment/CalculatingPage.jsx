@@ -4,14 +4,13 @@ import { useApp } from '../../context/AppContext';
 import './CalculatingPage.css';
 
 const STEPS = [
-  { icon:'📊', text:'Loading 2,000 patient dataset…' },
-  { icon:'⚖️', text:'Weighting inattention score (45%)…' },
-  { icon:'⚡', text:'Applying hyperactivity factor (25%)…' },
-  { icon:'💥', text:'Applying impulsivity factor (20%)…' },
-  { icon:'🔢', text:'Calibrating symptom sum model…' },
-  { icon:'🧬', text:'Applying risk factor modifiers…' },
-  { icon:'🔍', text:'Comparing with patient cohort…' },
-  { icon:'✅', text:'Generating your report…' },
+  { icon:'📊', text:'Looking at your answers…' },
+  { icon:'🧠', text:'Thinking about focus & attention…' },
+  { icon:'⚡', text:'Thinking about energy & restlessness…' },
+  { icon:'💭', text:'Thinking about impulse control…' },
+  { icon:'🧩', text:'Putting it all together…' },
+  { icon:'📋', text:'Comparing with similar people…' },
+  { icon:'✅', text:'Almost done…' },
 ];
 
 export default function CalculatingPage() {

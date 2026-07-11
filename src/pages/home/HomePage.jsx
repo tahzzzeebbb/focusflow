@@ -57,12 +57,12 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* ── REAL DATA PILL ── */}
+        {/* ── DATA NOTE — kept short and plain ── */}
         {score && (
           <div style={{margin:'0 20px 16px',background:'var(--surf2)',borderRadius:12,padding:'10px 14px',display:'flex',gap:8,alignItems:'center'}}>
             <span style={{fontSize:16}}>📊</span>
             <span style={{fontSize:12,color:'var(--ink2)',lineHeight:1.4}}>
-              Score computed from <strong>2,000 real ADHD patients</strong> — inattention, hyperactivity & impulsivity rates validated against clinical diagnoses
+              Based on real patterns seen in thousands of people with ADHD
             </span>
           </div>
         )}
@@ -112,40 +112,6 @@ export default function HomePage() {
                 <span style={{fontSize:11,fontWeight:700,color:'var(--ink2)'}}>{a.label}</span>
               </button>
             ))}
-          </div>
-        </div>
-
-        {/* ── CLINICAL TOOLS (Neo4j powered) ── */}
-        <div className="section">
-          <div className="section-header">
-            <span className="section-title">Clinical Tools</span>
-            <span className="ui-badge ui-badge--green" style={{fontSize:10}}>Neo4j AuraDB</span>
-          </div>
-          <div style={{background:'var(--ink)',borderRadius:20,padding:20,overflow:'hidden',position:'relative'}}>
-            <div style={{position:'absolute',top:-20,right:-20,width:120,height:120,borderRadius:'50%',background:'rgba(162,155,254,.1)'}}/>
-            <p style={{fontSize:12,color:'rgba(255,255,255,.6)',marginBottom:14,fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px'}}>
-              Powered by 2,000 real patients + Neo4j graph
-            </p>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-              {[
-                {emoji:'🕸️',label:'Knowledge Graph',    sub:'Treatment → Outcomes', path:'/graph',     color:'#A29BFE'},
-                {emoji:'🔍',label:'Query Engine',       sub:'5 Cypher query types', path:'/query',     color:'#55D6A0'},
-                {emoji:'🔬',label:'Lab Tests',          sub:'Evidence-based recs',  path:'/labtest',   color:'#FFB347'},
-                {emoji:'📊',label:'Population Stats',   sub:'CSV live analytics',   path:'/analytics', color:'#FF8F8F'},
-              ].map(t => (
-                <button key={t.label}
-                  style={{background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.1)',
-                    borderRadius:14,padding:'14px 12px',textAlign:'left',cursor:'pointer',
-                    transition:'all .15s',display:'flex',flexDirection:'column',gap:6,fontFamily:'var(--font)'}}
-                  onClick={() => navigate(t.path)}
-                  onMouseOver={e => e.currentTarget.style.background='rgba(255,255,255,.12)'}
-                  onMouseOut={e => e.currentTarget.style.background='rgba(255,255,255,.06)'}>
-                  <span style={{fontSize:24}}>{t.emoji}</span>
-                  <div style={{fontSize:13,fontWeight:700,color:t.color}}>{t.label}</div>
-                  <div style={{fontSize:11,color:'rgba(255,255,255,.5)'}}>{t.sub}</div>
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 

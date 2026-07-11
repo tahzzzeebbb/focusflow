@@ -206,3 +206,21 @@
 .assess-insight--orange { background: var(--o50); border-left: 3px solid var(--o500); }
 .assess-insight--green  { background: var(--g50); border-left: 3px solid var(--g500); }
 .assess-insight--red    { background: var(--r50); border-left: 3px solid var(--r500); }
+
+/* ── SIMPLE QUESTION OPTIONS (Q1-Q3) — clean, no data clutter ── */
+.q-options {
+  display: flex; flex-direction: column; gap: 10px; margin-top: 8px;
+}
+.q-option {
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px; border: 2px solid var(--border); border-radius: 18px;
+  background: var(--surf2); cursor: pointer; transition: all .15s;
+  text-align: left; width: 100%; font-family: var(--font);
+}
+.q-option:hover { border-color: var(--p300); background: var(--p50); }
+.q-option.active { border-color: var(--p500); background: var(--p50); }
+.q-option__emoji { font-size: 32px; flex-shrink: 0; }
+.q-option__text { flex: 1; }
+.q-option__label { font-size: 16px; font-weight: 700; color: var(--ink); }
+.q-option__sub { font-size: 13px; color: var(--ink3); margin-top: 2px; }
+.q-option__check { font-size: 22px; color: var(--p500); flex-shrink: 0; }

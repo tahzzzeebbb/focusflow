@@ -7,7 +7,7 @@ const SLIDES = [
   {
     emoji: '🎯',
     title: 'Your brain works\ndifferently.',
-    body: 'FocusFlow uses a real dataset of 2,000 ADHD patients — not a generic quiz — to calculate your actual risk score.',
+    body: 'FocusFlow looks at real patterns from thousands of people with ADHD — not a generic quiz — to give you an honest answer.',
     color: '#6C5CE7',
     light: '#F0EEFF',
     btn: 'Next',

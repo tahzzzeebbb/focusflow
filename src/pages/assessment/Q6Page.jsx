@@ -6,17 +6,11 @@ import './Assessment.css';
 
 const OPTIONS = [
   { key:'familyHistory', emoji:'🧬', title:'Family history of ADHD',
-    sub:'Parent, sibling, or close relative diagnosed with ADHD',
-    badge:'+4 risk points', badgeV:'red',
-    insight:'27.2% of ADHD patients vs 19.3% of non-ADHD — significant genetic marker' },
-  { key:'anxiety', emoji:'😰', title:'Anxiety disorder',
-    sub:'Diagnosed or suspected — persistent worry, racing thoughts',
-    badge:'16.8% comorbid with ADHD', badgeV:'yellow',
-    insight:'Anxiety and ADHD frequently co-occur. Our data shows slightly lower ADHD rate with anxiety alone.' },
+    sub:'A parent, sibling, or close relative has been diagnosed' },
+  { key:'anxiety', emoji:'😰', title:'Anxiety',
+    sub:'Diagnosed or suspected — persistent worry, racing thoughts' },
   { key:'depression', emoji:'😞', title:'Depression',
-    sub:'Persistent low mood, loss of motivation or interest',
-    badge:'11.3% comorbid with ADHD', badgeV:'purple',
-    insight:'Depression can be secondary to ADHD frustration and academic difficulty.' },
+    sub:'Persistent low mood, loss of motivation or interest' },
 ];
 
 export default function Q6Page() {
@@ -37,9 +31,9 @@ export default function Q6Page() {
     <div className="screen">
       <div className="assess-header">
         <StepBar current={5} total={7} />
-        <Badge variant="red">Question 6 of 7 · Risk Factors</Badge>
-        <h1 className="assess-q">Family & medical history</h1>
-        <p className="assess-sub">These modify your risk score. Select all that apply — none is perfectly valid.</p>
+        <Badge variant="red">Question 6 of 7</Badge>
+        <h1 className="assess-q">Does any of this apply to you?</h1>
+        <p className="assess-sub">Select all that apply — it's fine if none do</p>
       </div>
 
       <div className="screen__scroll px">
@@ -52,14 +46,6 @@ export default function Q6Page() {
               <div style={{ flex: 1 }}>
                 <div className="choice-card__title">{opt.title}</div>
                 <div className="choice-card__sub">{opt.sub}</div>
-                <div className="choice-card__badge" style={{ marginTop: 6 }}>
-                  <span className={`ui-badge ui-badge--${opt.badgeV}`}>{opt.badge}</span>
-                </div>
-                {selected.has(opt.key) && (
-                  <p style={{ fontSize:12, color:'var(--ink3)', marginTop:8, lineHeight:1.4 }}>
-                    📊 {opt.insight}
-                  </p>
-                )}
               </div>
               <div style={{ color: selected.has(opt.key) ? 'var(--p500)' : 'var(--border)', fontSize: 22, flexShrink: 0 }}>
                 {selected.has(opt.key) ? '✓' : '○'}
