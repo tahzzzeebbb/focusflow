@@ -80,11 +80,11 @@ export default function ChatPage() {
       </div>
 
       {/* Quick replies */}
-      <div style={{display:'flex',gap:8,overflowX:'auto',padding:'8px 16px',flexShrink:0,scrollbarWidth:'none'}}>
+      <div style={{display:'flex',flexWrap:'wrap',gap:8,padding:'8px 16px',flexShrink:0}}>
         {QUICK.map(q=>(
           <button key={q} onClick={()=>send(q)}
             style={{padding:'8px 14px',background:'var(--surf2)',border:'1px solid var(--border)',
-              borderRadius:999,fontSize:12,fontWeight:600,color:'var(--ink2)',whiteSpace:'nowrap',cursor:'pointer'}}>
+              borderRadius:999,fontSize:12,fontWeight:600,color:'var(--ink2)',cursor:'pointer'}}>
             {q}
           </button>
         ))}
