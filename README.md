@@ -1,137 +1,329 @@
-# FocusFlow — ADHD Assessment & Management App
+# 🧠 FocusFlow – AI-Powered ADHD Assessment & Management Platform
 
-A complete ADHD management app using **2,000 real patient records** for scoring.
+<p align="center">
+  <strong>An intelligent full-stack healthcare application that combines clinical data analytics, knowledge graphs, and interactive visualizations to support ADHD assessment and management.</strong>
+</p>
 
-## What's inside
-
-### User Journey (28 screens, button navigation)
-```
-/ Splash → /welcome (3 slides) → /auth (signup/login)
-→ /q1 → /q2 → /q3 → /q4 → /q5 → /q6 → /q7 (assessment)
-→ /calculating → /result (real score)
-→ /home → /tasks → /focus → /progress → /profile
-→ /mood → /journal → /chat
-→ /graph → /query → /labtest → /analytics (Clinical Tools)
-```
-
-### Real Data Engine
-- **ADHD.csv** — 2,000 patients, 18 columns loaded live in browser
-- Q1 chart shows real diagnosis rates per score from actual data
-- Result page finds your similar patients from the CSV
-- Academic impact shows real avg score for your symptom total
-- Analytics page computes all charts live from CSV on load
-
-### Neo4j Services (all 4 connected)
-- `neo4j.js` — getTreatmentOutcomeData → Cytoscape.js graph
-- `queryService.js` — 5 Cypher query types
-- `labTestService.js` — getLabTestsForSymptom, getTreatmentGuidelines
-- `analysisService.js` — getSymptomDistribution, getOutcomeRates
+<p align="center">
+  <img src="https://img.shields.io/badge/React-18-blue?logo=react">
+  <img src="https://img.shields.io/badge/Node.js-Express-green?logo=node.js">
+  <img src="https://img.shields.io/badge/MongoDB-Atlas-success?logo=mongodb">
+  <img src="https://img.shields.io/badge/Neo4j-Aura-008CC1?logo=neo4j">
+  <img src="https://img.shields.io/badge/Vite-Latest-purple?logo=vite">
+  <img src="https://img.shields.io/badge/License-MIT-yellow">
+</p>
 
 ---
 
-## Step 1 — Run locally
+## 📖 Overview
 
-```bash
-cd adhd-app
-npm install
+FocusFlow is a comprehensive ADHD assessment and management platform designed to deliver evidence-based insights using **2,000 real ADHD patient records**.
 
-# Copy env file and fill in your credentials
-cp .env.example .env
+The platform integrates **Neo4j Knowledge Graphs**, **MongoDB**, **React**, and **interactive clinical analytics** to provide users with personalized assessments, symptom exploration, treatment recommendations, and progress tracking.
+
+---
+
+# ✨ Features
+
+## 🧠 ADHD Assessment
+
+- 7-step ADHD screening questionnaire
+- Real-time score calculation
+- Personalized assessment report
+- Similar patient matching
+- Academic performance insights
+- Evidence-based symptom analysis
+
+---
+
+## 📊 Clinical Analytics
+
+Powered by **2,000 real-world patient records**
+
+- Live diagnosis statistics
+- Symptom distribution analysis
+- Academic impact visualization
+- Dynamic charts
+- Treatment outcome analysis
+- Interactive dashboards
+
+---
+
+## 🌐 Knowledge Graph
+
+Built using **Neo4j AuraDB**
+
+Visualizes relationships between:
+
+- Symptoms
+- Patients
+- Treatments
+- Outcomes
+- Lab Tests
+- Clinical Guidelines
+
+Supports intelligent graph traversal and advanced healthcare queries.
+
+---
+
+## 💡 Intelligent Clinical Tools
+
+- Interactive Knowledge Graph
+- Cypher Query Explorer
+- Lab Test Recommendation Engine
+- Treatment Guideline Lookup
+- Clinical Analytics Dashboard
+- Outcome Prediction Visualization
+
+---
+
+# 🚀 User Flow
+
+```text
+Splash
+   ↓
+Welcome
+   ↓
+Authentication
+   ↓
+ADHD Assessment
+(Q1 → Q7)
+   ↓
+Score Calculation
+   ↓
+Assessment Result
+   ↓
+Dashboard
+   ├── Tasks
+   ├── Focus Timer
+   ├── Mood Tracker
+   ├── Journal
+   ├── AI Chat
+   ├── Progress
+   ├── Knowledge Graph
+   ├── Analytics
+   ├── Query System
+   └── Lab Recommendations
 ```
 
-# Start backend (new terminal)
+---
+
+# 🏗️ Project Architecture
+
+```
+Frontend (React + Vite)
+        │
+        ▼
+REST API (Node.js + Express)
+        │
+ ┌──────┴────────┐
+ ▼               ▼
+MongoDB      Neo4j Aura
+(Patient)   (Knowledge Graph)
+```
+
+---
+
+# 🛠 Tech Stack
+
+## Frontend
+
+- React.js
+- Vite
+- JavaScript (ES6)
+- CSS
+- Cytoscape.js
+
+## Backend
+
+- Node.js
+- Express.js
+
+## Databases
+
+- MongoDB Atlas
+- Neo4j AuraDB
+
+## Data
+
+- CSV Dataset (2,000 ADHD Patients)
+
+---
+
+# 📂 Project Structure
+
+```
+FocusFlow
+│
+├── src/
+├── public/
+├── backend-mongodb/
+├── neo4j-seed/
+├── assets/
+├── package.json
+├── vite.config.js
+└── README.md
+```
+
+---
+
+# ⚙️ Installation
+
+Clone the repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/focusflow.git
+
+cd focusflow
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Create environment file
+
+```env
+VITE_NEO4J_URI=
+VITE_NEO4J_USER=
+VITE_NEO4J_PASSWORD=
+VITE_API_URL=
+```
+
+Run Frontend
+
+```bash
+npm run dev
+```
+
+Run Backend
+
+```bash
 cd backend-mongodb
+
 npm install
-cp .env.example .env
-# Fill in MONGODB_URI with your rotated password
+
 node server.js
-# → http://localhost:5002
 ```
 
 ---
 
-## Step 2 — Push to GitHub
+# 🌍 Deployment
 
-```bash
-cd adhd-app
+## Frontend
 
-# 1. Go to github.com → New repository
-#    Name: focusflow
-#    Public, NO readme, NO gitignore (already have both)
-#    Click "Create repository"
+Deploy using **Vercel**
 
-# 2. Copy the URL shown, then:
-git remote add origin https://github.com/YOUR_USERNAME/focusflow.git
-git push -u origin main
-```
+Required Environment Variables
 
-Done — your code is live on GitHub.
-
----
-
-## Step 3 — Deploy on Vercel (free, 3 minutes)
-
-**Option A — Browser (easiest):**
-
-1. Go to [vercel.com](https://vercel.com) → Sign up with GitHub
-2. Click **"Add New Project"**
-3. Find your `focusflow` repo → Click **"Import"**
-4. Framework: **Vite** (auto-detected)
-5. Click **"Environment Variables"** and add these 4:
-
-| Key | Value |
-|-----|-------|
-| `VITE_NEO4J_URI` | `neo4j+s://72503925.databases.neo4j.io` |
-| `VITE_NEO4J_USER` | `neo4j` |
-| `VITE_NEO4J_PASSWORD` | your AuraDB password |
-| `VITE_API_URL` | `https://YOUR_RENDER_URL/api` |
-
-6. Click **"Deploy"**
-7. In ~2 minutes you get a URL like `focusflow-xyz.vercel.app` ✅
-
-**Option B — CLI:**
-```bash
-npm i -g vercel
-vercel login
-vercel --prod
-# Follow prompts, then set env vars in Vercel dashboard
+```env
+VITE_NEO4J_URI=
+VITE_NEO4J_USER=
+VITE_NEO4J_PASSWORD=
+VITE_API_URL=
 ```
 
 ---
 
-## Step 4 — Deploy backend on Render (free)
+## Backend
 
-1. Go to [render.com](https://render.com) → New → **Web Service**
-2. Connect GitHub → select `focusflow` repo
-3. Settings:
-   - Root directory: `backend-mongodb`
-   - Build command: `npm install`
-   - Start command: `node server.js`
-4. Environment variables:
-   - `MONGODB_URI` = your MongoDB Atlas connection string
-   - `PORT` = `5002`
-   - `CORS_ORIGIN` = `https://your-vercel-url.vercel.app`
-5. Deploy → copy the Render URL
-6. Go back to Vercel → update `VITE_API_URL` to your Render URL
+Deploy using **Render**
+
+Environment Variables
+
+```env
+MONGODB_URI=
+PORT=5002
+CORS_ORIGIN=
+```
 
 ---
 
-## Neo4j: Load graph data
+# 📊 Dataset
 
-1. Go to [console.neo4j.io](https://console.neo4j.io) → Instance01 → **Query**
-2. Open `neo4j-seed/seed.cypher` → copy all → paste → **▶ Run**
-3. You should see: Treatment:12, Outcome:12, Symptom:10, Patient:8
+- 2,000 ADHD Patient Records
+- 18 Clinical Features
+- Real Assessment Scores
+- Academic Performance Data
+- Behavioral Indicators
+- Live Analytics
 
 ---
 
-## Important — Rotate credentials
+# 🧩 Neo4j Knowledge Graph
 
-Your AuraDB password was shared in chat. Regenerate it:
-- console.neo4j.io → Instance01 → **Reset password**
-- Update `.env` locally + Vercel env vars
+The graph database models relationships between:
 
-## Demo login
+- 👤 Patients
+- 🧠 Symptoms
+- 💊 Treatments
+- 📈 Outcomes
+- 🧪 Lab Tests
+- 📚 Clinical Guidelines
+
+Import graph data by running:
+
 ```
-Email:    admin@adhd.com
-Password: admin123
+neo4j-seed/seed.cypher
 ```
+
+---
+
+# 🔒 Security
+
+- Environment variables are excluded from Git.
+- Credentials should never be committed.
+- Rotate Neo4j credentials before deployment.
+
+---
+
+# 🔑 Demo Login
+
+```
+Email:
+admin@adhd.com
+
+Password:
+admin123
+```
+
+---
+
+# 🌟 Highlights
+
+- ✅ Built a complete healthcare management platform
+- ✅ Processed 2,000 real patient records
+- ✅ Integrated Neo4j Knowledge Graph
+- ✅ Connected MongoDB & Neo4j
+- ✅ Interactive Cytoscape.js visualizations
+- ✅ Dynamic clinical analytics
+- ✅ Multi-page React application
+- ✅ Full-stack deployment ready
+
+---
+
+# 🚀 Future Improvements
+
+- AI-powered treatment recommendations
+- Machine Learning risk prediction
+- Doctor Dashboard
+- Patient Dashboard
+- Appointment Scheduling
+- PDF Report Generation
+- Role-based Authentication
+- Notification System
+
+---
+
+# 👩‍💻 Author
+
+**Tehzeeb Masood**
+
+Software Engineer
+
+
+---
+
+## ⭐ If you found this project useful, don't forget to star the repository!
