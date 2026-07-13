@@ -32,26 +32,12 @@ A complete ADHD management app using **2,000 real patient records** for scoring.
 ## Step 1 — Run locally
 
 ```bash
-unzip focusflow-v3-final.zip
 cd adhd-app
 npm install
 
 # Copy env file and fill in your credentials
 cp .env.example .env
 ```
-
-Edit `.env`:
-```
-VITE_NEO4J_URI=neo4j+s://72503925.databases.neo4j.io
-VITE_NEO4J_USER=neo4j
-VITE_NEO4J_PASSWORD=YOUR_AURA_PASSWORD
-VITE_API_URL=http://localhost:5002/api
-```
-
-```bash
-# Start frontend
-npm run dev
-# → http://localhost:5735
 
 # Start backend (new terminal)
 cd backend-mongodb
